@@ -1,12 +1,26 @@
 /*
-* Created: Mar 2023
-* Description: 
-* 
-*/
-
+ * Created on: Mar 2023
+ * Author: Dora Matic
+ * Description: 
+ */
 #pragma once
 
+//***************************
+// C++ Includes
+//***************************
+
+//***************************
+// 3rd Party Includes
+//***************************
 #include "SDL.h"
+
+//***************************
+// App Includes
+//***************************
+
+//***************************
+// Definition
+//***************************
 
 class Application
 {
