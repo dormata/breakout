@@ -28,7 +28,7 @@ class Logging
 		Logging();
 		~Logging();
 
-		void reportLog(std::string expr, std::string fileName, std::string line);
+		void reportLog(std::string expr, std::string fileName, std::string line, bool shouldThrow);
 
 	private:
 		std::string getDateTimeString();

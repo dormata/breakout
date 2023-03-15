@@ -50,13 +50,14 @@ Logging::~Logging()
  *		expr - string to be logged
  *		fileName - file name from which log is received
  *		line - line in fileName
+ *		shouldThrow - true if exception should be thrown
  */
-void Logging::reportLog(std::string expr, std::string fileName, std::string line)
+void Logging::reportLog(std::string expr, std::string fileName, std::string line, bool shouldThrow)
 {
 	std::string logTimestamp = getDateTimeString();
 	std::cout << logTimestamp << " " << expr << " in: " << fileName << " at: " << line << std::endl;
 
-	throw std::runtime_error("FATAL ERROR, SHUTDOWN.");
+	if (shouldThrow) throw std::runtime_error("FATAL ERROR, SHUTDOWN.");
 }
 
 /*
