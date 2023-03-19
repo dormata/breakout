@@ -45,6 +45,9 @@ void Application::initialize()
 
 	m_renderer = SDL_CreateRenderer(m_window, -1, 0);
 	CHECK_SDL_FALSE_ERROR(m_renderer);
+
+	TTF_Init();
+	m_font = TTF_OpenFont("font.ttf", 10);
 }
 
 /*
@@ -72,11 +75,8 @@ int Application::execute()
 		render();
 
 		m_frameCount++;
-		int timerFPS = SDL_GetTicks() - m_lastFrame;
-		if (timerFPS < (1000 / 60))
-		{
-			SDL_Delay((1000 / 60) - timerFPS);
-		}
+		delay();
+		
 	}
 
 	destroy();
@@ -88,6 +88,12 @@ int Application::execute()
  */
 void Application::destroy()
 {
+	if (m_font)
+	{
+		TTF_CloseFont(m_font);
+		m_font = nullptr;
+	}
+
 	if (m_renderer)
 	{
 		SDL_DestroyRenderer(m_renderer);
@@ -122,6 +128,7 @@ void Application::onEvent(SDL_Event* event)
 	const uint8_t* keystates = SDL_GetKeyboardState(NULL);
 	if (keystates[SDL_SCANCODE_ESCAPE]) m_run = false;
 	if (keystates[SDL_SCANCODE_F11]) m_fullscreen = !m_fullscreen;
+	//if (keystates[SDL_SCANCODE_LEFT])
 }
 
 /*
@@ -157,16 +164,28 @@ void Application::gameLoop()
 void Application::render()
 {
 	CHECK_SDL_NEGATIVE_ERROR(SDL_SetRenderDrawColor(m_renderer, 0, 255, 0, 255));
-	SDL_Rect rect;
+	//CHECK_SDL_NEGATIVE_ERROR(SDL_RenderClear(m_renderer));
+
+	SDL_Rect rect{};
 	rect.x = 0; rect.y = 0;
 	rect.w = 300;
 	rect.h = 200;
 	CHECK_SDL_NEGATIVE_ERROR(SDL_RenderFillRect(m_renderer, &rect));
-
+	
 	// Present final drawing
 	SDL_RenderPresent(m_renderer);
+}
 
-	// clear ne zove?
+/*
+ * delay(): calculate duration of frame and delay to keep at constant fps
+ */
+void Application::delay()
+{
+	int timerFPS = SDL_GetTicks() - m_lastFrame;
+	if (timerFPS < (1000 / 60))
+	{
+		SDL_Delay((1000 / 60) - timerFPS);
+	}
 }
 
 Application* Application::getInstance()

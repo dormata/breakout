@@ -12,8 +12,8 @@
 //***************************
 // 3rd Party Includes
 //***************************
-#include "SDL.h"
-#include "SDL_ttf.h"
+#include "SDL2/SDL.h"
+#include "SDL2_ttf/SDL_ttf.h"
 
 //***************************
 // App Includes
@@ -39,6 +39,7 @@ class Application
 		void update();
 		void gameLoop();
 		void render();
+		void delay();
 
 		static constexpr int WINDOW_WIDTH = 600;
 		static constexpr int WINDOW_HEIGHT = 400;
@@ -52,5 +53,6 @@ class Application
 		int				m_fps = 0;
 		SDL_Window*		m_window = nullptr;
 		SDL_Renderer*	m_renderer = nullptr;
+		SDL_Surface*	m_screenSurface = nullptr;
 		TTF_Font*		m_font = nullptr;
 };
