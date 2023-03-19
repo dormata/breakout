@@ -17,24 +17,19 @@
 // App Includes
 //***************************
 #include "Application.h"
-#include "Logger.h"
+#include "common/Logger.h"
+#include "FileReader/FileReader.h"
 
 //***************************
 // Implementation
 //***************************
-
-Application Application::App; // compiler complains
-
-Application::Application()
-{
-
-}
 
 /*
  * initialize():
  */
 void Application::initialize()
 {
+	// Init and set SDL
 	CHECK_SDL_NEGATIVE_ERROR(SDL_Init(SDL_INIT_EVERYTHING));
 
 	m_window = SDL_CreateWindow("title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
@@ -48,6 +43,9 @@ void Application::initialize()
 
 	TTF_Init();
 	m_font = TTF_OpenFont("font.ttf", 10);
+
+	// Create File Reader
+	std::unique_ptr<FileReader> fileReader = std::make_unique<FileReader>();
 }
 
 /*
@@ -188,7 +186,13 @@ void Application::delay()
 	}
 }
 
-Application* Application::getInstance()
+/*
+ * getInstance(): create "Application" object on first call and return handle
+ *
+ * @return: object reference
+ */
+Application& Application::getInstance()
 { 
-	return &Application::App;
+	static Application instance;
+	return instance;
 }

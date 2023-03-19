@@ -2,5 +2,5 @@
 
 int main(int argc, char* argv[])
 {
-	return Application::getInstance()->execute();
+	return Application::getInstance().execute();
 }

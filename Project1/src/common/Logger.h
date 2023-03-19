@@ -23,7 +23,7 @@
 //***************************
 
 // Logging class object
-Logging g_errorLogs;
+inline Logging g_errorLogs;
 
 /*
  * LOG(): log error string
@@ -32,9 +32,21 @@ Logging g_errorLogs;
  *		s - error string to be logged
  */
 #define LOG(s) { \
-	std::string errorString = "System error"; \
+	std::string errorString = "System error: "; \
 	errorString.append(s); \
 	g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 0); \
+};
+
+ /*
+  * LOG_AND_THROW(): log error string and throw exception
+  *
+  * @params:
+  *		s - error string to be logged
+  */
+#define LOG_AND_THROW(s) { \
+	std::string errorString = "System error: "; \
+	errorString.append(s); \
+	g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 1); \
 };
 
  /*

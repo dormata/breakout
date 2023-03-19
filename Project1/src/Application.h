@@ -26,12 +26,15 @@
 class Application
 {
 	public:
-		static Application* getInstance();
+		static Application& getInstance();
 		int execute();
 
+		// do not allow copies
+		Application(Application const&) = delete;
+		void operator=(Application const&) = delete;
+
 	private:
-		static Application App;
-		Application();
+		Application() = default; // private constructor -> prevent creating new objects
 		void initialize();
 		void destroy();
 
