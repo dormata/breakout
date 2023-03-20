@@ -1,13 +1,14 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description: 
+ * Description: Main app header
  */
 #pragma once
 
 //***************************
 // C++ Includes
 //***************************
+#include <vector>
 
 //***************************
 // 3rd Party Includes
@@ -18,6 +19,7 @@
 //***************************
 // App Includes
 //***************************
+#include "Level/Level.h"
 
 //***************************
 // Definition
@@ -47,15 +49,18 @@ class Application
 		static constexpr int WINDOW_WIDTH = 600;
 		static constexpr int WINDOW_HEIGHT = 400;
 
-		bool			m_run = true;
-		bool			m_fullscreen = false;
-		int				m_frameCount = 0;
-		int				m_timerFPS = 0;
-		int				m_lastFrame = 0;
-		int				m_lastTime = 0;
-		int				m_fps = 0;
-		SDL_Window*		m_window = nullptr;
-		SDL_Renderer*	m_renderer = nullptr;
-		SDL_Surface*	m_screenSurface = nullptr;
-		TTF_Font*		m_font = nullptr;
+		bool			m_run = true;				// main loop condition
+		bool			m_fullscreen = false;		// toggle full screen of game window
+		int				m_frameCount = 0;			// current number of frames rendered within a second
+		int				m_timeMS = 0;				// current time (from init) in milliseconds
+		int				m_lastTimeMS = 0;			// time of last second 
+		int				m_fps = 0;					// number of frames per second
+		SDL_Window*		m_window = nullptr;			// window handle
+		SDL_Renderer*	m_renderer = nullptr;		// renderer handle
+		SDL_Surface*	m_screenSurface = nullptr;	// surface handle
+		TTF_Font*		m_font = nullptr;			// font handle
+
+		// Vector with objects from class level
+		std::vector<std::shared_ptr<Level>> m_levelObjects;
+
 };

@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description:
+ * Description: Header with error logging macros
  */
 #pragma once
 
@@ -58,7 +58,7 @@ inline Logging g_errorLogs;
   */
 #define CHECK(x, s) { \
 	if ( !(x) ) { \
-		std::string errorString = "System error"; \
+		std::string errorString = "System error: "; \
 		errorString.append(s); \
 		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 1); \
 	} \
@@ -73,7 +73,7 @@ inline Logging g_errorLogs;
   */
 #define CHECK_NOTHROW(x, s) { \
 	if ( !(x) ) { \
-		std::string errorString = "System error"; \
+		std::string errorString = "System error: "; \
 		errorString.append(s); \
 		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 0); \
 	} \
@@ -89,7 +89,7 @@ inline Logging g_errorLogs;
 	if ( x<0 ) { \
 		const char* description; \
 		description = SDL_GetError(); \
-		std::string errorString = "System error"; \
+		std::string errorString = "System error: "; \
 		errorString.append(description); \
 		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 1); \
 	} \
@@ -105,7 +105,7 @@ inline Logging g_errorLogs;
 	if ( x<0 ) { \
 		const char* description; \
 		description = SDL_GetError(); \
-		std::string errorString = "System error"; \
+		std::string errorString = "System error: "; \
 		errorString.append(description); \
 		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 0); \
 	} \
@@ -121,7 +121,7 @@ inline Logging g_errorLogs;
 	if ( !(x) ) { \
 		const char* description; \
 		description = SDL_GetError(); \
-		std::string errorString = "System error"; \
+		std::string errorString = "System error: "; \
 		errorString.append(description); \
 		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 1); \
 	} \
@@ -137,8 +137,26 @@ inline Logging g_errorLogs;
 	if ( !(x) ) { \
 		const char* description; \
 		description = SDL_GetError(); \
-		std::string errorString = "System error"; \
+		std::string errorString = "System error: "; \
 		errorString.append(description); \
 		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 0); \
+	} \
+};
+
+ /*
+  * CHECK_TINYXML_ERROR(): checks error for tinyxml2 functions, throws exception, TODO: always print error code?
+  *
+  * @params:
+  *		x - result value that should be XML_SUCCESS, false on error
+  *		obj - XMLDocument object (public member fcns not static)
+  */
+#define CHECK_TINYXML_ERROR(x, obj) { \
+	tinyxml2::XMLError result = x; \
+	if ( result != tinyxml2::XML_SUCCESS ) { \
+		const char* description; \
+		description = obj.ErrorStr(); \
+		std::string errorString = "System error: "; \
+		errorString.append(description); \
+		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 1); \
 	} \
 };

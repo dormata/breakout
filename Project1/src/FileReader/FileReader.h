@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description:
+ * Description: File reading header
  */
 #pragma once
 
@@ -17,6 +17,7 @@
  //***************************
  // App Includes
  //***************************
+#include "../common/DataStructures/FileReaderDataStructures.h"
 
  //***************************
  // Definition
@@ -28,12 +29,12 @@ public:
 	FileReader();
 	~FileReader();
 
-	std::vector<std::string> getConfigFileNames() const;
+	std::vector<FileReaderOutputData> getConfigFileNames() const;
 
 private:
 	void readFilenamesInDir();
 
 	static constexpr char LEVEL_CONFIG_FOLDER_NAME[] = "levelConfig/";
-	std::vector<std::string> m_configFileNames;
+	std::vector<FileReaderOutputData> m_configFilesStruct;
 
 };

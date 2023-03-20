@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description:
+ * Description: Error logging class
  */
 #pragma once
 

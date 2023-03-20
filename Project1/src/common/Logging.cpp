@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description:
+ * Description: Error logging class
  */
 
  //***************************
@@ -44,7 +44,7 @@ Logging::~Logging()
 }
 
 /*
- * reportLog():
+ * reportLog(): logs error msg to terminal, optionally throws exception
  *
  * @params:
  *		expr - string to be logged
@@ -61,7 +61,7 @@ void Logging::reportLog(std::string expr, std::string fileName, std::string line
 }
 
 /*
- * getDateTimeString():
+ * getDateTimeString(): gets string containing date and time 
  * 
  * @return: returns timestamp
  */

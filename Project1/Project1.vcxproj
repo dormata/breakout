@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\common\DataPaths.h" />
+    <ClInclude Include="src\common\DataStructures\FileReaderDataStructures.h" />
     <ClInclude Include="src\FileReader\FileReader.h" />
     <ClInclude Include="src\Level\Level.h" />
     <ClInclude Include="src\common\Logger.h" />

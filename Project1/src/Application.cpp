@@ -18,6 +18,7 @@
 //***************************
 #include "Application.h"
 #include "common/Logger.h"
+#include "common/DataStructures/FileReaderDataStructures.h"
 #include "FileReader/FileReader.h"
 
 //***************************
@@ -25,7 +26,7 @@
 //***************************
 
 /*
- * initialize():
+ * initialize(): init objects, 3rd party libs
  */
 void Application::initialize()
 {
@@ -35,8 +36,8 @@ void Application::initialize()
 	m_window = SDL_CreateWindow("title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 	CHECK_SDL_FALSE_ERROR(m_window);
 
-	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_ShowCursor(1)); // show cursor
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2"); // TODO: ne znam
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_ShowCursor(1)); // Show cursor
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2"); // TODO: maybe different
 
 	m_renderer = SDL_CreateRenderer(m_window, -1, 0);
 	CHECK_SDL_FALSE_ERROR(m_renderer);
@@ -46,10 +47,17 @@ void Application::initialize()
 
 	// Create File Reader
 	std::unique_ptr<FileReader> fileReader = std::make_unique<FileReader>();
+
+	// Create level objects
+	std::vector<FileReaderOutputData> configFileNames = fileReader->getConfigFileNames();
+	for (uint32_t i = 0; i < configFileNames.size(); i++)
+	{
+		m_levelObjects.push_back(Level::makeLevel(configFileNames.at(i)));
+	}
 }
 
 /*
- * execute():
+ * execute(): execute main loop
  *
  * @return: 0 if successful, negative otherwise
  */
@@ -82,7 +90,7 @@ int Application::execute()
 }
 
 /*
- * destroy():
+ * destroy(): release & destroy
  */
 void Application::destroy()
 {
@@ -130,21 +138,22 @@ void Application::onEvent(SDL_Event* event)
 }
 
 /*
- * update():
+ * update(): update environment state - fps, window still open
  */
 void Application::update()
 {
 	if (m_fullscreen) CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetWindowFullscreen(m_window, SDL_WINDOW_FULLSCREEN));
 	if (!m_fullscreen) CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetWindowFullscreen(m_window, 0));
 
-	m_lastFrame = SDL_GetTicks();
-	if (m_lastFrame >= (m_lastTime + 1000))
+	m_timeMS = SDL_GetTicks();
+	if (m_timeMS >= (m_lastTimeMS + 1000)) // 1000 ms - check if one second has passed
 	{
-		m_lastTime = m_lastFrame;
+		m_lastTimeMS = m_timeMS;
 		m_fps = m_frameCount;
 		m_frameCount = 0;
 
-		std::cout << "m_fps = " << m_fps << std::endl; // mozda stavi pod options statistics
+		// debug
+		std::cout << "m_fps = " << m_fps << std::endl;
 	}
 }
 
@@ -179,7 +188,7 @@ void Application::render()
  */
 void Application::delay()
 {
-	int timerFPS = SDL_GetTicks() - m_lastFrame;
+	int timerFPS = SDL_GetTicks() - m_timeMS;
 	if (timerFPS < (1000 / 60))
 	{
 		SDL_Delay((1000 / 60) - timerFPS);

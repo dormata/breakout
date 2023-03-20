@@ -1,13 +1,14 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description: Contains paths to folders used by project which are not in project
+ * Description: Shared data structures used by File Reader module
  */
 #pragma once
 
  //***************************
  // C++ Includes
  //***************************
+#include <string>
 
  //***************************
  // 3rd Party Includes
@@ -21,8 +22,8 @@
 // Definition
 //***************************
 
-// Resources
-static constexpr char RESOURCE_FILES_PATH[] = "resources/";
-
-// Error logging and telemetry
-// in case logging to file is added, add here
+struct FileReaderOutputData
+{
+	std::string		levelName;
+	std::string		configFilePathAndName;
+};

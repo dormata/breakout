@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description:
+ * Description: Reads file list from specified config directory. DOES NOT PARSE.
  */
 
 //***************************
@@ -38,14 +38,26 @@ FileReader::FileReader()
  */
 void FileReader::readFilenamesInDir()
 {
+	// Assumes directory structure:
+	// 1.xml
+	// 2.xml
+	// ...
+	// n.xml
+	// where each file name represents one order number of level
+	// TODO: more error checks, extension checking...
+
 	std::string fullPathAndName = std::string(RESOURCE_FILES_PATH) + std::string(LEVEL_CONFIG_FOLDER_NAME);
 	if (std::filesystem::is_directory(fullPathAndName))
 	{
+		FileReaderOutputData fileStruct{};
 		// Read all available level config files
 		for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator{ fullPathAndName })
 		{
-			std::string path = entry.path().string();
-			m_configFileNames.push_back(path);
+			fileStruct.configFilePathAndName = entry.path().string();
+			std::string fileName = entry.path().stem().string();
+			fileStruct.levelName = fileName;
+
+			m_configFilesStruct.push_back(fileStruct);
 		}
 
 		// TODO: uzmi do tocke da dobijes samo brojeve
@@ -57,26 +69,28 @@ void FileReader::readFilenamesInDir()
 		LOG_AND_THROW("Missing resource folder, should be: " + std::string(RESOURCE_FILES_PATH));
 	}
 
-	if (m_configFileNames.size() <= 0)
+	if (m_configFilesStruct.size() <= 0)
 	{
 		LOG_AND_THROW("No level config files found in " + fullPathAndName + ", ");
 	}
 
 	// debug
-	for (uint32_t i = 0; i < m_configFileNames.size(); i++)
+	for (uint32_t i = 0; i < m_configFilesStruct.size(); i++)
 	{
-		std::cout << m_configFileNames.at(i) << std::endl;
+		std::cout << m_configFilesStruct.at(i).configFilePathAndName << std::endl;
+		std::cout << m_configFilesStruct.at(i).levelName << std::endl;
+		std::cout << "\n" << std::endl;
 	}
 }
 
 /*
- * getConfigFileNames(): get configuration file names
+ * getConfigFileNames(): get configuration file struct
  * 
- * @return: config filenames
+ * @return: config struct
  */
-std::vector<std::string> FileReader::getConfigFileNames() const
+std::vector<FileReaderOutputData> FileReader::getConfigFileNames() const
 {
-	return m_configFileNames;
+	return m_configFilesStruct;
 }
 
 /*

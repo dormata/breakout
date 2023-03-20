@@ -323,5 +323,8 @@
     <ClInclude Include="src\FileReader\FileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\common\DataStructures\FileReaderDataStructures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
