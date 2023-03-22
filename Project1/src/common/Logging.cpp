@@ -57,7 +57,8 @@ void Logging::reportLog(std::string expr, std::string fileName, std::string line
 	std::string logTimestamp = getDateTimeString();
 	std::cout << logTimestamp << " " << expr << " in: " << fileName << " at: " << line << std::endl;
 
-	if (shouldThrow) throw std::runtime_error("FATAL ERROR, SHUTDOWN.");
+	// if (shouldThrow) throw std::runtime_error("FATAL ERROR, SHUTDOWN.");
+	if (shouldThrow) exit(1);
 }
 
 /*

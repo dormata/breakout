@@ -46,9 +46,6 @@ class Application
 		void render();
 		void delay();
 
-		static constexpr int WINDOW_WIDTH = 600;
-		static constexpr int WINDOW_HEIGHT = 400;
-
 		bool			m_run = true;				// main loop condition
 		bool			m_fullscreen = false;		// toggle full screen of game window
 		int				m_frameCount = 0;			// current number of frames rendered within a second

@@ -129,6 +129,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include\SDL2;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\FileReader\FileReader.cpp" />
+    <ClCompile Include="src\Level\Brick\Brick.cpp" />
     <ClCompile Include="src\Level\Level.cpp" />
     <ClCompile Include="src\common\Logging.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -156,9 +158,11 @@
     <ClInclude Include="src\common\DataPaths.h" />
     <ClInclude Include="src\common\DataStructures\FileReaderDataStructures.h" />
     <ClInclude Include="src\FileReader\FileReader.h" />
+    <ClInclude Include="src\Level\Brick\Brick.h" />
     <ClInclude Include="src\Level\Level.h" />
     <ClInclude Include="src\common\Logger.h" />
     <ClInclude Include="src\common\Logging.h" />
+    <ClInclude Include="src\Level\LevelDataStructures.h" />
     <ClInclude Include="third_party\include\SDL2\begin_code.h" />
     <ClInclude Include="third_party\include\SDL2\close_code.h" />
     <ClInclude Include="third_party\include\SDL2\SDL.h" />

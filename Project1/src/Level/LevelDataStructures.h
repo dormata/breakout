@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description: Shared data structures used by File Reader module
+ * Description: Data structures shared within Level folder (specific to level)
  */
 #pragma once
 
@@ -18,15 +18,15 @@
  // App Includes
  //***************************
 
-//***************************
-// Definition
-//***************************
+ //***************************
+ // Definition
+ //***************************
 
-static constexpr int WINDOW_WIDTH = 600;
-static constexpr int WINDOW_HEIGHT = 400;
-
-struct FileReaderOutputData
+struct BrickAttributes 
 {
-	std::string		levelName;
-	std::string		configFilePathAndName;
+	std::string texturePath;
+	int			hitPoints;
+	std::string hitSoundPath;
+	std::string breakSoundPath;
+	int			breakScore;
 };
