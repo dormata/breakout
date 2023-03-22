@@ -10,6 +10,7 @@
  //***************************
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 //***************************
 // 3rd Party Includes
@@ -65,6 +66,25 @@ std::shared_ptr<Level> Level::makeLevel(FileReaderOutputData configStruct)
 }
 
 /*
+ * fillRenderBuffer():
+ */
+void Level::fillRenderLevelBuffer()
+{
+	// Background
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderHandle, 0, 255, 0, 255));
+	SDL_Rect rect{};
+	rect.x = 0; rect.y = 0;
+	rect.w = 600;
+	rect.h = 100;
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderFillRect(m_renderHandle, &rect));
+
+	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
+	{
+		m_brickObjects.at(i)->fillRenderBricksBuffer();
+	}
+}
+
+/*
  * processAndCreateBrickLayout():
  */
 void Level::processAndCreateBrickLayout()
@@ -81,22 +101,36 @@ void Level::processAndCreateBrickLayout()
 	// |     | |     | |     | |     |
 	// x-----x x-----x x-----x x-----x
 
-	int totalBrickWidthPixels = WINDOW_WIDTH / ((m_mainAttributesStruct.rowCount - 1) * m_mainAttributesStruct.colSpacing
-												+ 2 * LEFT_RIGHT_SCREEN_OFFSET_PIXELS);
-	int brickWidthPixels = totalBrickWidthPixels / m_mainAttributesStruct.rowCount;
+	float totalBrickWidthPixels = static_cast<float>(WINDOW_WIDTH) 
+											- ((m_mainAttributesStruct.colCount - 1) * m_mainAttributesStruct.colSpacing
+											+ 2 * LEFT_RIGHT_SCREEN_OFFSET_PIXELS);
+	int brickWidthPixels = static_cast<int>(std::round(totalBrickWidthPixels / m_mainAttributesStruct.colCount));
 
 	SDL_Rect brickProps{};
 	brickProps.w = brickWidthPixels;
 	brickProps.h = BRICK_HEIGHT_PIXELS;
-	int lastIndex = 0;
+
+	BrickAttributes brickAttributes{};
+	int lastIndex = 0; int j = -1;
 	for (int i = 0; i < totalNumberBricks; i++)
 	{
+		// Column iterator
 		brickProps.x = (i % m_mainAttributesStruct.colCount) * brickProps.w
 					 + (i % m_mainAttributesStruct.colCount) * m_mainAttributesStruct.colSpacing
-					 + LEFT_RIGHT_SCREEN_OFFSET_PIXELS;
-		brickProps.y = (i % m_mainAttributesStruct.rowCount) * brickProps.h
-					 + (i % m_mainAttributesStruct.rowCount) * m_mainAttributesStruct.rowSpacing
+					 + LEFT_RIGHT_SCREEN_OFFSET_PIXELS
+					 + m_mainAttributesStruct.colSpacing/2;
+
+		if ((i % m_mainAttributesStruct.colCount) == 0)
+		{
+			// When row is finished, increment row counter
+			j++;
+		}
+
+		// Row iterator
+		brickProps.y = (j % m_mainAttributesStruct.rowCount) * brickProps.h
+					 + (j % m_mainAttributesStruct.rowCount) * m_mainAttributesStruct.rowSpacing
 					 + UPPER_SCREEN_OFFSET_PIXELS;
+	
 
 		// Find first brick ID in layout
 		while (isEmptyStringElement(m_layoutString[lastIndex])) { lastIndex++; }
@@ -104,17 +138,31 @@ void Level::processAndCreateBrickLayout()
 		bool successPair = false;
 		for (auto const& [key, val] : m_brickTypesMap)
 		{
-			std::cout << "key = " << key << std::endl;
 			if (key == m_layoutString[lastIndex])
 			{
-				// priduzi att
+				brickAttributes = val;
 				successPair = true;
-				std::cout << "Paired with " << m_layoutString[lastIndex] << std::endl;
+
+				// Brick paired with key -> create brick
+				m_brickObjects.push_back(Brick::makeBrick(brickAttributes, brickProps));
+
 				break;
 			}
 		}
-		if (!successPair) std::cout << "error nema para" << std::endl;
-		lastIndex++;
+		if (!successPair)
+		{
+			if (m_layoutString[lastIndex] == RESERVED_EMPTY_CHAR)
+			{
+				// empty space, skip init
+			}
+			else
+			{
+				// unknown brick key -> layout unknown!
+				std::string msg(1, m_layoutString[lastIndex]);
+				LOG_AND_THROW("Brick ID: " + msg + " not recognized - not possible to parse layout!");
+			}
+		}
+		lastIndex++;	
 	}
 
 }
@@ -258,4 +306,22 @@ bool Level::isEmptyStringElement(char element)
 		isEmpty = true;
 	}
 	return isEmpty;
+}
+
+/*
+ * setRendererHandle(): set renderer handle from App in Level, and pass to Brick
+ *
+ * @params:
+ *		renderHandle - renderer handle (pointer)
+ */
+void Level::setRendererHandle(SDL_Renderer* renderHandle)
+{
+	// Set for Level
+	m_renderHandle = renderHandle;
+
+	// Set for Bricks
+	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
+	{
+		m_brickObjects.at(i)->setRendererHandle(m_renderHandle);
+	}
 }

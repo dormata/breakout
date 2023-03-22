@@ -69,6 +69,12 @@ int Application::execute()
 	// Main loop
 	while (m_run)
 	{
+		// Active level
+		// level->isLevelFinished // ovisno o broju ziovta ili broju brickova
+		m_numLevelCurrent = 0; // jel bi ovo sve mozda islo pod game loop
+
+		
+
 		// Are there pending events
 		while (SDL_PollEvent(&event) > 0)
 		{
@@ -170,15 +176,20 @@ void Application::gameLoop()
  */
 void Application::render()
 {
-	CHECK_SDL_NEGATIVE_ERROR(SDL_SetRenderDrawColor(m_renderer, 0, 255, 0, 255));
-	//CHECK_SDL_NEGATIVE_ERROR(SDL_RenderClear(m_renderer));
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255));
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderClear(m_renderer));
 
+	// Background
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255));
 	SDL_Rect rect{};
 	rect.x = 0; rect.y = 0;
-	rect.w = 300;
-	rect.h = 200;
-	CHECK_SDL_NEGATIVE_ERROR(SDL_RenderFillRect(m_renderer, &rect));
+	rect.w = WINDOW_WIDTH;
+	rect.h = WINDOW_HEIGHT;
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderFillRect(m_renderer, &rect));
 	
+	m_levelObjects.at(m_numLevelCurrent)->setRendererHandle(m_renderer);
+	m_levelObjects.at(m_numLevelCurrent)->fillRenderLevelBuffer();
+
 	// Present final drawing
 	SDL_RenderPresent(m_renderer);
 }

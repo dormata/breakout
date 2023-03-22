@@ -56,6 +56,7 @@ class Application
 		SDL_Renderer*	m_renderer = nullptr;		// renderer handle
 		SDL_Surface*	m_screenSurface = nullptr;	// surface handle
 		TTF_Font*		m_font = nullptr;			// font handle
+		uint32_t		m_numLevelCurrent = 0;		// currently active level, iterator for level object vector 
 
 		// Vector with objects from class level
 		std::vector<std::shared_ptr<Level>> m_levelObjects;

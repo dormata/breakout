@@ -36,10 +36,14 @@ class Level
 		// Factory method
 		static std::shared_ptr<Level> makeLevel(FileReaderOutputData configStruct); // static -> can be used before instancing object
 
+		void setRendererHandle(SDL_Renderer* renderHandle);
+		void fillRenderLevelBuffer();
+
 	private:
 		void parseXML(std::string filename);
 		void setLevelName(std::string name);
-		std::string m_levelName;
+		std::string		m_levelName;
+		SDL_Renderer*	m_renderHandle = nullptr;
 
 		void processAndCreateBrickLayout();
 
@@ -79,6 +83,9 @@ class Level
 
 		// Map key
 		char m_id;
+
+		// Reserved character for empty place in brick layout
+		const char RESERVED_EMPTY_CHAR = '_';
 		
 		// Brick ID with its attributes
 		std::map<char, BrickAttributes> m_brickTypesMap;
@@ -94,6 +101,9 @@ class Level
 		// Do not render on first number of pixels up on screen
 		static constexpr int UPPER_SCREEN_OFFSET_PIXELS = 10;
 		// Do not render on first/last number of pixels left/right on screen
-		static constexpr int LEFT_RIGHT_SCREEN_OFFSET_PIXELS = 5;
+		static constexpr int LEFT_RIGHT_SCREEN_OFFSET_PIXELS = 10; // has to be an even number to look nice because of rounding
+
+		// Brick objects vector
+		std::vector<std::shared_ptr<Brick>> m_brickObjects;
 };
 
