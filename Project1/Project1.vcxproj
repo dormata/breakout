@@ -148,6 +148,9 @@
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\FileReader\FileReader.cpp" />
     <ClCompile Include="src\Level\Brick\Brick.cpp" />
+    <ClCompile Include="src\Level\IDynamicObject\Ball\Ball.cpp" />
+    <ClCompile Include="src\Level\IDynamicObject\IDynamicObject.cpp" />
+    <ClCompile Include="src\Level\IDynamicObject\Paddle\Paddle.cpp" />
     <ClCompile Include="src\Level\Level.cpp" />
     <ClCompile Include="src\common\Logging.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -156,9 +159,12 @@
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\common\DataPaths.h" />
-    <ClInclude Include="src\common\DataStructures\FileReaderDataStructures.h" />
+    <ClInclude Include="src\common\DataStructures\CommonDataStructures.h" />
     <ClInclude Include="src\FileReader\FileReader.h" />
     <ClInclude Include="src\Level\Brick\Brick.h" />
+    <ClInclude Include="src\Level\IDynamicObject\Ball\Ball.h" />
+    <ClInclude Include="src\Level\IDynamicObject\IDynamicObject.h" />
+    <ClInclude Include="src\Level\IDynamicObject\Paddle\Paddle.h" />
     <ClInclude Include="src\Level\Level.h" />
     <ClInclude Include="src\common\Logger.h" />
     <ClInclude Include="src\common\Logging.h" />

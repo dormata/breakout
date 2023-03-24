@@ -58,7 +58,7 @@ std::shared_ptr<Brick> Brick::makeBrick(BrickAttributes brickAtt, SDL_Rect brick
 }
 
 /*
- * fillRenderBricksBuffer():
+ * fillRenderBricksBuffer(): fill buffer with data to be rendered
  */
 void Brick::fillRenderBricksBuffer()
 {

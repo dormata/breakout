@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description: Shared data structures used by File Reader module
+ * Description: Shared data structures used by any module
  */
 #pragma once
 
@@ -23,10 +23,16 @@
 //***************************
 
 static constexpr int WINDOW_WIDTH = 600;
-static constexpr int WINDOW_HEIGHT = 400;
+static constexpr int WINDOW_HEIGHT = 500;
 
 struct FileReaderOutputData
 {
 	std::string		levelName;
 	std::string		configFilePathAndName;
+};
+
+struct BallVelocity
+{
+	int X = 0;
+	int Y = 0;
 };

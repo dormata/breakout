@@ -18,7 +18,7 @@
 //***************************
 #include "Application.h"
 #include "common/Logger.h"
-#include "common/DataStructures/FileReaderDataStructures.h"
+#include "common/DataStructures/CommonDataStructures.h"
 #include "FileReader/FileReader.h"
 
 //***************************
@@ -140,16 +140,23 @@ void Application::onEvent(SDL_Event* event)
 	const uint8_t* keystates = SDL_GetKeyboardState(NULL);
 	if (keystates[SDL_SCANCODE_ESCAPE]) m_run = false;
 	if (keystates[SDL_SCANCODE_F11]) m_fullscreen = !m_fullscreen;
-	//if (keystates[SDL_SCANCODE_LEFT])
+
+	// Set keystates
+	m_levelObjects.at(m_numLevelCurrent)->setKeystates(keystates);
 }
 
 /*
  * update(): update environment state - fps, window still open
+ *		   : update game state - ball position
  */
 void Application::update()
 {
-	if (m_fullscreen) CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetWindowFullscreen(m_window, SDL_WINDOW_FULLSCREEN));
-	if (!m_fullscreen) CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetWindowFullscreen(m_window, 0));
+	// Update window settings
+	if (m_fullscreen)	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetWindowFullscreen(m_window, SDL_WINDOW_FULLSCREEN));
+	if (!m_fullscreen)	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetWindowFullscreen(m_window, 0));
+
+	// Update game state - object position, bricks
+	m_levelObjects.at(m_numLevelCurrent)->updateGameState();
 
 	m_timeMS = SDL_GetTicks();
 	if (m_timeMS >= (m_lastTimeMS + 1000)) // 1000 ms - check if one second has passed
@@ -200,9 +207,9 @@ void Application::render()
 void Application::delay()
 {
 	int timerFPS = SDL_GetTicks() - m_timeMS;
-	if (timerFPS < (1000 / 60))
+	if (timerFPS < (1000 / APP_FPS)) // 1000 ms = 1 sec
 	{
-		SDL_Delay((1000 / 60) - timerFPS);
+		SDL_Delay((1000 / APP_FPS) - timerFPS);
 	}
 }
 

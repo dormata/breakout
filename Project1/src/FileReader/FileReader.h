@@ -17,7 +17,7 @@
  //***************************
  // App Includes
  //***************************
-#include "../common/DataStructures/FileReaderDataStructures.h"
+#include "../common/DataStructures/CommonDataStructures.h"
 
  //***************************
  // Definition

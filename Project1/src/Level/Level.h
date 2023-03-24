@@ -19,9 +19,11 @@
  //***************************
  // App Includes
  //***************************
-#include "../common/DataStructures/FileReaderDataStructures.h"
+#include "../common/DataStructures/CommonDataStructures.h"
 #include "LevelDataStructures.h"
 #include "Brick/Brick.h"
+#include "IDynamicObject/Paddle/Paddle.h"
+#include "IDynamicObject/Ball/Ball.h"
 
  //***************************
  // Definition
@@ -37,13 +39,17 @@ class Level
 		static std::shared_ptr<Level> makeLevel(FileReaderOutputData configStruct); // static -> can be used before instancing object
 
 		void setRendererHandle(SDL_Renderer* renderHandle);
+		void setKeystates(const uint8_t* keystates);
 		void fillRenderLevelBuffer();
+		void updateGameState();
 
 	private:
 		void parseXML(std::string filename);
 		void setLevelName(std::string name);
+
 		std::string		m_levelName;
 		SDL_Renderer*	m_renderHandle = nullptr;
+		const uint8_t*	m_keystates = nullptr;
 
 		void processAndCreateBrickLayout();
 
@@ -82,7 +88,7 @@ class Level
 		const char* BRICK_BREAK_SCORE = "BreakScore";
 
 		// Map key
-		char m_id;
+		char m_id = 0;
 
 		// Reserved character for empty place in brick layout
 		const char RESERVED_EMPTY_CHAR = '_';
@@ -97,13 +103,26 @@ class Level
 		std::string m_layoutString;
 
 		// One brick height in pixels
-		static constexpr int BRICK_HEIGHT_PIXELS = 20;
+		static constexpr int BRICK_HEIGHT_PIXELS = 10;
 		// Do not render on first number of pixels up on screen
-		static constexpr int UPPER_SCREEN_OFFSET_PIXELS = 10;
+		static constexpr int UPPER_SCREEN_OFFSET_PIXELS = 50;
+		// Do not render on first number of pixels down on screen
+		static constexpr int LOWER_SCREEN_OFFSET_PIXELS = 10;
 		// Do not render on first/last number of pixels left/right on screen
-		static constexpr int LEFT_RIGHT_SCREEN_OFFSET_PIXELS = 10; // has to be an even number to look nice because of rounding
+		static constexpr int LEFT_RIGHT_SCREEN_OFFSET_PIXELS = 0; // has to be an even number to look nice because of rounding
 
 		// Brick objects vector
 		std::vector<std::shared_ptr<Brick>> m_brickObjects;
+
+		// Paddle
+		std::unique_ptr<Paddle> m_objectPaddle;
+		void setPaddleData();
+
+		// Ball
+		std::unique_ptr<Ball> m_objectBall;
+		void setBallData();
+
+		// Intersection checks
+		bool hasIntersection(SDL_Rect rect1, SDL_Rect rect2);
 };
 

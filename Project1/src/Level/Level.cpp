@@ -32,7 +32,13 @@
  */
 Level::Level()
 {
+	// Create and set Paddle object
+	m_objectPaddle = std::make_unique<Paddle>();
+	setPaddleData();
 
+	// Create and set Ball object
+	m_objectBall = std::make_unique<Ball>();
+	setBallData();
 }
 
 /*
@@ -66,7 +72,39 @@ std::shared_ptr<Level> Level::makeLevel(FileReaderOutputData configStruct)
 }
 
 /*
- * fillRenderBuffer():
+ * updateGameState():
+ */
+void Level::updateGameState()
+{
+	BallVelocity	ballVelocity{};
+	SDL_Rect		ballProps{};
+	SDL_Rect		paddleProps{};
+
+	// Get properties
+	paddleProps		= m_objectPaddle->getObjectProps();
+	ballProps		= m_objectBall->getObjectProps();
+	ballVelocity	= m_objectBall->getVelocity();
+
+	// Check for intersections
+	if (hasIntersection(ballProps, paddleProps)) ballVelocity.Y = -ballVelocity.Y;
+
+	// Set bricks
+
+	// Ball vs wall
+	if (ballProps.x < 0 || (ballProps.x + ballProps.w) > WINDOW_WIDTH) ballVelocity.X = -ballVelocity.X;
+
+	// Ball vs ceiling
+	if (ballProps.y <= 0) ballVelocity.Y = -ballVelocity.Y;
+
+	// Set velocity
+	m_objectBall->setVelocity(ballVelocity);
+
+	// Update ball position
+	m_objectBall->updatePosition();
+}
+
+/*
+ * fillRenderLevelBuffer(): fill buffer with data to be rendered
  */
 void Level::fillRenderLevelBuffer()
 {
@@ -78,10 +116,17 @@ void Level::fillRenderLevelBuffer()
 	rect.h = 100;
 	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderFillRect(m_renderHandle, &rect));
 
+	// Bricks
 	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
 	{
 		m_brickObjects.at(i)->fillRenderBricksBuffer();
 	}
+
+	// Paddle
+	m_objectPaddle->fillRenderBuffer();
+
+	// Ball
+	m_objectBall->fillRenderBuffer();
 }
 
 /*
@@ -120,17 +165,13 @@ void Level::processAndCreateBrickLayout()
 					 + LEFT_RIGHT_SCREEN_OFFSET_PIXELS
 					 + m_mainAttributesStruct.colSpacing/2;
 
-		if ((i % m_mainAttributesStruct.colCount) == 0)
-		{
-			// When row is finished, increment row counter
-			j++;
-		}
+		// When row is finished, increment row counter
+		if ((i % m_mainAttributesStruct.colCount) == 0) j++;
 
 		// Row iterator
 		brickProps.y = (j % m_mainAttributesStruct.rowCount) * brickProps.h
 					 + (j % m_mainAttributesStruct.rowCount) * m_mainAttributesStruct.rowSpacing
 					 + UPPER_SCREEN_OFFSET_PIXELS;
-	
 
 		// Find first brick ID in layout
 		while (isEmptyStringElement(m_layoutString[lastIndex])) { lastIndex++; }
@@ -176,6 +217,46 @@ void Level::processAndCreateBrickLayout()
 void Level::setLevelName(std::string name)
 {
 	m_levelName = name;
+}
+
+/*
+ * setPaddleData(): set data needed by Paddle object
+ */
+void Level::setPaddleData()
+{
+	int paddleWidthPixels = 50;
+	int paddleHeightPixels = 10;
+	m_objectPaddle->setSize(paddleWidthPixels, paddleHeightPixels);
+
+	int paddleSpeed = 10;
+	m_objectPaddle->setSpeed(paddleSpeed);
+
+	int xInital = WINDOW_WIDTH / 2 - paddleWidthPixels/2;
+	int yInitial = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + paddleHeightPixels);
+	m_objectPaddle->setInitialPosition(xInital, yInitial);
+}
+
+/*
+ * setBallData(): set data needed by Ball object
+ */
+void Level::setBallData()
+{
+	int ballWidthPixels = 8;
+	int ballHeightPixels = 8;
+	m_objectBall->setSize(ballWidthPixels, ballHeightPixels);
+
+	int ballSpeed = 7;
+	m_objectBall->setSpeed(ballSpeed);
+
+	// TODO: check where lowest row of bricks is, not window height/2
+	int xInital = WINDOW_WIDTH / 2 - ballWidthPixels / 2;
+	int yInitial = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + WINDOW_HEIGHT/2) - 100;
+	m_objectBall->setInitialPosition(xInital, yInitial);
+
+	BallVelocity initVel{};
+	initVel.X = 1;
+	initVel.Y = 2;
+	m_objectBall->setVelocity(initVel);
 }
 
 /*
@@ -323,5 +404,58 @@ void Level::setRendererHandle(SDL_Renderer* renderHandle)
 	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
 	{
 		m_brickObjects.at(i)->setRendererHandle(m_renderHandle);
+	}
+
+	// Set for Paddle
+	m_objectPaddle->setRendererHandle(m_renderHandle);
+
+	// Set for Ball
+	m_objectBall->setRendererHandle(m_renderHandle);
+}
+
+/*
+ * setKeystates(): set key states
+ *
+ * @params:
+ *		keystates - input keys states
+ */
+void Level::setKeystates(const uint8_t* keystates)
+{
+	// Set for Level
+	m_keystates = keystates;
+
+	// Set for Paddle
+	m_objectPaddle->movePaddle(keystates);
+}
+
+/*
+ * hasIntersection(): check if rectangles have intersection (collision detection)
+ *					: specific to ball and paddle - collision from above
+ *
+ * @params:
+ *		rect1 - first rectangle
+ *		rect2 - second rectangle
+ * 
+ * @return: true if 2 rectangles have intersection
+ */
+bool Level::hasIntersection(SDL_Rect rect1, SDL_Rect rect2)
+{
+	//			  w1
+	//			x----x
+	//			|	 | h1
+	//			x----x					  w1
+	//	x--------------------x			x----x x--------------------x
+	//	|					 | h2		|	 | |					| h2
+	//	x--------------------x			x----x x--------------------x
+	//			  w2									 w2
+
+	if ((rect1.x + rect1.w) >= rect2.x &&	// X component
+		(rect1.y + rect1.h) >= rect2.y)		// Y component
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }

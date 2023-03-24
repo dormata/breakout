@@ -61,4 +61,7 @@ class Application
 		// Vector with objects from class level
 		std::vector<std::shared_ptr<Level>> m_levelObjects;
 
+		// Desired fps
+		static constexpr int APP_FPS = 60;
+
 };

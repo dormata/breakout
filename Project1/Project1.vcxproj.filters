@@ -36,6 +36,15 @@
     <ClCompile Include="src\Level\Brick\Brick.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Level\IDynamicObject\Ball\Ball.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Level\IDynamicObject\Paddle\Paddle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Level\IDynamicObject\IDynamicObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
@@ -326,13 +335,22 @@
     <ClInclude Include="src\FileReader\FileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\DataStructures\FileReaderDataStructures.h">
+    <ClInclude Include="src\common\DataStructures\CommonDataStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Level\Brick\Brick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Level\LevelDataStructures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level\IDynamicObject\IDynamicObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level\IDynamicObject\Ball\Ball.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level\IDynamicObject\Paddle\Paddle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
