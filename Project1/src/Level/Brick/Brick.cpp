@@ -114,3 +114,34 @@ void Brick::setRendererHandle(SDL_Renderer* renderHandle)
 {
 	m_renderHandle = renderHandle;
 }
+
+/*
+ * getBrickProps(): get brick location and size
+ *
+ * @return: brick properties
+ */
+SDL_Rect Brick::getBrickProps()
+{
+	return m_brickRect;
+}
+
+/*
+ * getBrickExists(): get does brick exist bool
+ *
+ * @return: true if brick exists
+ */
+bool Brick::getBrickExists()
+{
+	return m_doesBrickExist;
+}
+
+///*
+// * setBrickExists(): set if brick exists
+// *
+// * @params:
+// *		brickExists - true if brick exists
+// */
+//void Brick::setBrickExists(bool brickExists)
+//{
+//	m_doesBrickExist = brickExists;
+//}

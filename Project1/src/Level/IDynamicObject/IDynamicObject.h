@@ -42,6 +42,7 @@ class IDynamicObject
 
 		// Get properties
 		SDL_Rect getObjectProps();
+		int		 getSpeed();
 
 	protected:
 		SDL_Rect		m_properties{};

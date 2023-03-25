@@ -79,3 +79,13 @@ SDL_Rect IDynamicObject::getObjectProps()
 {
 	return m_properties;
 }
+
+/*
+ * getSpeed(): get speed (number of pixels moved per iteration)
+ *
+ * @return: object speed
+ */
+int IDynamicObject::getSpeed()
+{
+	return m_speed;
+}

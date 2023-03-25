@@ -36,6 +36,10 @@ class Brick
 
 		void setRendererHandle(SDL_Renderer* renderHandle);
 		void fillRenderBricksBuffer();
+		void setBrickExists(bool brickExists);
+
+		SDL_Rect	getBrickProps();
+		bool		getBrickExists();
 
 	private:
 		bool			m_doesBrickExist = false;
@@ -43,7 +47,7 @@ class Brick
 		BrickAttributes m_brickAttributes{};
 		SDL_Renderer*	m_renderHandle = nullptr;
 
-		void setBrickExists(bool brickExists);
+		//void setBrickExists(bool brickExists);
 		void setBrickAtts(BrickAttributes brickAtts);
 		void setBrickRect(SDL_Rect brickRect);
 };

@@ -124,5 +124,9 @@ class Level
 
 		// Intersection checks
 		bool hasIntersection(SDL_Rect rect1, SDL_Rect rect2);
+		// Max value that X component of ball velocity can change for, upon colliding with paddle
+		int MAX_X_CHANGE = 10;
+		// Max absolute value that X component of ball velocity
+		int MAX_X_VAL = 10;
 };
 

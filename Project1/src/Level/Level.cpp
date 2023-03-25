@@ -76,17 +76,79 @@ std::shared_ptr<Level> Level::makeLevel(FileReaderOutputData configStruct)
  */
 void Level::updateGameState()
 {
-	BallVelocity	ballVelocity{};
+	BallVelocity	ballVelocity{}; // x, y components
 	SDL_Rect		ballProps{};
 	SDL_Rect		paddleProps{};
+	int				ballSpeed{}; // number of pixels moved per iteration
 
 	// Get properties
 	paddleProps		= m_objectPaddle->getObjectProps();
 	ballProps		= m_objectBall->getObjectProps();
 	ballVelocity	= m_objectBall->getVelocity();
+	ballSpeed		= m_objectBall->getSpeed();
 
-	// Check for intersections
-	if (hasIntersection(ballProps, paddleProps)) ballVelocity.Y = -ballVelocity.Y;
+	// Ball vs paddle
+	if (hasIntersection(ballProps, paddleProps))
+	{
+		// Part of paddle hit -> different angle change
+		float paddlePart = (paddleProps.x + static_cast<float>(paddleProps.w/2)) - (ballProps.x + static_cast<float>(ballProps.w/2));
+		// Normalize - the closer to the middle, the smaller the coeff
+		// Keep the sign
+		float norm = paddlePart / (paddleProps.w / 2);
+		// Hit on the edge, norm > 1
+		if (norm > 1)	norm = 1;
+		if (norm < -1)	norm = -1;
+
+		float bounceAngle = norm * (5 * 3.14f / 12); // using a bit less than 6pi/12
+		ballVelocity.Y = static_cast<int>(std::round(-ballSpeed * std::cos(bounceAngle)));
+		ballVelocity.X = static_cast<int>(std::round(ballSpeed * (-std::sin(bounceAngle))));
+	}
+		
+	// Ball vs brick
+	SDL_Rect brickProps{};
+	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
+	{
+		// Get hit points required
+		// Get hit points left
+		// set opacity or remove
+		//m_brickObjects.at(i)->get
+
+		if (m_brickObjects.at(i)->getBrickExists())
+		{
+			brickProps = m_brickObjects.at(i)->getBrickProps();
+			if (hasIntersection(ballProps, brickProps))
+			{
+				// Added speed tolerances
+				
+				// Left side hit
+				if ((ballProps.x + ballVelocity.X + ballProps.w) >= brickProps.x &&
+					(ballProps.x - ballVelocity.X + ballProps.w) <= brickProps.x)
+				{
+					ballVelocity.X = -ballVelocity.X;
+				}
+				// Right side hit
+				if ((ballProps.x + ballVelocity.X) >= (brickProps.x + brickProps.w) &&
+					(ballProps.x - ballVelocity.X) <= (brickProps.x + brickProps.w))
+				{
+					ballVelocity.X = -ballVelocity.X;
+				}
+
+				// Top side hit
+				if ((ballProps.y + ballVelocity.Y + ballProps.h) >= brickProps.y &&
+					(ballProps.y - ballVelocity.Y + ballProps.h) <= brickProps.y)
+				{
+					ballVelocity.Y = -ballVelocity.Y;
+				}
+				// Bottom side hit
+				if ((ballProps.y + ballVelocity.Y) <= (brickProps.y + brickProps.h) &&
+					(ballProps.y - ballVelocity.Y) >= (brickProps.y + brickProps.h))
+				{
+					ballVelocity.Y = -ballVelocity.Y;
+				}
+			}
+		}
+		
+	}
 
 	// Set bricks
 
@@ -95,6 +157,9 @@ void Level::updateGameState()
 
 	// Ball vs ceiling
 	if (ballProps.y <= 0) ballVelocity.Y = -ballVelocity.Y;
+
+	// Check for velocity component limits
+	/*if (ballVelocity.X > MAX_X_VAL) ballVelocity.X = MAX_X_VAL;*/
 
 	// Set velocity
 	m_objectBall->setVelocity(ballVelocity);
@@ -245,7 +310,7 @@ void Level::setBallData()
 	int ballHeightPixels = 8;
 	m_objectBall->setSize(ballWidthPixels, ballHeightPixels);
 
-	int ballSpeed = 7;
+	int ballSpeed = 4;
 	m_objectBall->setSpeed(ballSpeed);
 
 	// TODO: check where lowest row of bricks is, not window height/2
@@ -254,8 +319,8 @@ void Level::setBallData()
 	m_objectBall->setInitialPosition(xInital, yInitial);
 
 	BallVelocity initVel{};
-	initVel.X = 1;
-	initVel.Y = 2;
+	initVel.X = 0;
+	initVel.Y = ballSpeed;
 	m_objectBall->setVelocity(initVel);
 }
 
@@ -430,32 +495,89 @@ void Level::setKeystates(const uint8_t* keystates)
 
 /*
  * hasIntersection(): check if rectangles have intersection (collision detection)
- *					: specific to ball and paddle - collision from above
  *
  * @params:
  *		rect1 - first rectangle
  *		rect2 - second rectangle
- * 
- * @return: true if 2 rectangles have intersection
+ *
+ * @return: true if 2 rectangles have intersection, false otherwise
  */
 bool Level::hasIntersection(SDL_Rect rect1, SDL_Rect rect2)
 {
-	//			  w1
-	//			x----x
-	//			|	 | h1
-	//			x----x					  w1
-	//	x--------------------x			x----x x--------------------x
-	//	|					 | h2		|	 | |					| h2
-	//	x--------------------x			x----x x--------------------x
-	//			  w2									 w2
+	// ---------> x
+	// |				l2
+	// |				x-----------x
+	// y	l1			|			|
+	//		x-----------|----x		|
+	//		|			|	 |		|
+	//		|			x----|------x r2
+	//		|				 |
+	//		x----------------x
+	//						 r1
 
-	if ((rect1.x + rect1.w) >= rect2.x &&	// X component
-		(rect1.y + rect1.h) >= rect2.y)		// Y component
-	{
-		return true;
-	}
-	else
+	// l1 - top left first rect
+	int l1X = rect1.x;
+	int l1Y = rect1.y;
+	// r1 - bottom right first rect
+	int r1X = rect1.x + rect1.w;
+	int r1Y = rect1.y + rect1.h;
+
+	// l2 - top left second rect
+	int l2X = rect2.x;
+	int l2Y = rect2.y;
+	// r2 - bottom right second rect
+	int r2X = rect2.x + rect2.w;
+	int r2Y = rect2.y + rect2.h;
+
+	// TODO: if rectangle has area 0
+
+	// If one rectangle is on left side of other
+	if (l1X > r2X || l2X > r1X)
 	{
 		return false;
 	}
+
+	// If one rectangle is above other
+	if (r1Y < l2Y || r2Y < l1Y)
+	{
+		return false;
+	}
+
+	return true;
 }
+
+///*
+// * hasIntersection(): check if rectangles have intersection (collision detection)
+// *					: specific to ball and paddle - collision from above
+// *
+// * @params:
+// *		rect1 - first rectangle
+// *		rect2 - second rectangle
+// * 
+// * @return: true if 2 rectangles have intersection
+// */
+//bool Level::hasIntersection(SDL_Rect rect1, SDL_Rect rect2)
+//{
+//	//			  w1
+//	//			x----x
+//	//			|	 | h1
+//	//			x----x					  w1
+//	//	x--------------------x			x----x x--------------------x
+//	//	|					 | h2		|	 | |					| h2
+//	//	x--------------------x			x----x x--------------------x
+//	//			  w2									 w2
+//
+//	if ((rect1.x + rect1.w) >= rect2.x &&	// from the left side
+//		(rect1.x + rect1.w) <= (rect2.x + rect2.w) &&
+//		(rect1.y + rect1.h) >= rect2.y ||
+//		 rect1.x >= (rect2.x + rect2.w) &&
+//		 rect1.x <= rect2.y &&
+//		(rect1.y + rect1.h) >= rect2.y)
+//	{
+//		return true;
+//	}
+//	else
+//	{
+//		return false;
+//	}
+//}
