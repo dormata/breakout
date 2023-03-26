@@ -1,7 +1,8 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description: 
+ * Description: Object with brick state - updates, plays sounds
+ *			  : used primarily as data holder
  */
 
  //***************************

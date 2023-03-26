@@ -104,14 +104,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include\SDL2;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include\SDL2;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\third_party\include;$(ProjectDir)\third_party\include\SDL2;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include\SDL2;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\lib;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\third_party\lib;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2_mixer.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -127,7 +127,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include\SDL2;C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\third_party\include;$(ProjectDir)\third_party\include\SDL2;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -136,7 +136,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\pisoj\Documents\dora\dev\Project1\Project1\third_party\lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)\third_party\lib;</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2_mixer.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2.lib;SDL2main.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>

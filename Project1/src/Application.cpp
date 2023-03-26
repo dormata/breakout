@@ -59,8 +59,6 @@ void Application::initialize()
 	CHECK_TTF_FALSE_ERROR(m_fontSmall);
 
 	// Sound mixer
-	// TODO: Lazyfoo.net: The last argument is the sample size, which determines the size of the chunks we use when playing sound
-	// 2048 bytes (AKA 2 kilobyes) worked fine for me, but you may have to experiment with this value to minimize lag when playing sounds
 	CHECK_MIXER_NEGATIVE_ERROR(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048));
 
 	// Create File Reader

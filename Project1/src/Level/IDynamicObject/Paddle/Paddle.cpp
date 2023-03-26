@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description:
+ * Description: Paddle object - moves wrt input, renders
  */
 
  //***************************
