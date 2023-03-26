@@ -113,6 +113,10 @@ void Level::updateGameState()
 				m_brickObjects.at(i)->onHit();
 				// Update score
 				m_scoreChange += m_brickObjects.at(i)->getBrickScore();
+				// Play sound
+				/*uint32_t index = m_brickObjects.at(i)->get();
+				brickTexture = m_objectTexturePool->getTextureFromVector(index);
+				playSound();*/
 			}
 		}	
 	}
@@ -694,7 +698,7 @@ bool Level::areAllBricksBroken()
 void Level::initTexturePool()
 {
 	// Create bricks texture pool object
-	m_objectTexturePool = std::make_shared<TexturePool>();
+	m_objectTexturePool = std::make_unique<TexturePool>();
 	SDL_Texture* addTexture;
 	
 	for (auto const& [key, val] : m_brickTypesMap)
@@ -705,6 +709,34 @@ void Level::initTexturePool()
 		uint32_t index = m_objectTexturePool->addTextureToPool(addTexture);
 		// Set that index in every brick object
 		m_brickTypesMap.at(key).textureVectorIndex = index;
+	}
+}
+
+/*
+ * initSoundPool(): creates SoundPool object and adds sounds to vector using brick objects info
+ */
+void Level::initSoundPool()
+{
+	// Create bricks texture pool object
+	// Hit sounds
+	m_objectSoundPoolHit = std::make_unique<SoundPool>();
+	// Break sound
+	m_objectSoundPoolBreak = std::make_unique<SoundPool>();
+
+	Mix_Chunk* addSoundHit;
+	Mix_Chunk* addSoundBreak;
+
+	for (auto const& [key, val] : m_brickTypesMap)
+	{
+		// Sound path saved per brick type in bricktypesmap
+		addSoundHit = m_objectSoundPoolHit->loadSoundFromFile(m_brickTypesMap.at(key).hitSoundPath);
+		addSoundBreak = m_objectSoundPoolBreak->loadSoundFromFile(m_brickTypesMap.at(key).breakSoundPath);
+		// Add that sound to sound pool object's member vector and check at which index texture was inserted
+		uint32_t indexHit = m_objectSoundPoolHit->addSoundToPool(addSoundHit);
+		uint32_t indexBreak = m_objectSoundPoolBreak->addSoundToPool(addSoundBreak);
+		// Set that index in every brick object
+		m_brickTypesMap.at(key).hitSoundVectorIndex = indexHit;
+		m_brickTypesMap.at(key).breakSoundVectorIndex = indexBreak;
 	}
 }
 
@@ -721,3 +753,25 @@ void Level::setBrickTextureIndices()
 		m_brickObjects.at(i)->setTextureIndex(m_brickTypesMap.at(key).textureVectorIndex);
 	}
 }
+
+/*
+ * setSoundIndicesAndHandle(): set indices of sound vector for every brick created, and set ptr to sound
+ */
+void Level::setSoundIndicesAndHandle()
+{
+	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
+	{
+		char key = m_brickObjects.at(i)->getBrickType();
+		// Brick types map is mapped with brick type as key
+		// Use that key to save index for accessing texture vector
+		m_brickObjects.at(i)->setHitSoundIndex(m_brickTypesMap.at(key).hitSoundVectorIndex);
+		m_brickObjects.at(i)->setBreakSoundIndex(m_brickTypesMap.at(key).breakSoundVectorIndex);
+		// Use this index to also set actual sound handle
+		Mix_Chunk* soundHit		= m_objectSoundPoolHit->getSoundFromVector(m_brickTypesMap.at(key).hitSoundVectorIndex);
+		Mix_Chunk* soundBreak	= m_objectSoundPoolHit->getSoundFromVector(m_brickTypesMap.at(key).breakSoundVectorIndex);
+		// Set handles to use in Brick
+		m_brickObjects.at(i)->setHitSoundHandle(soundHit);
+		m_brickObjects.at(i)->setBreakSoundHandle(soundBreak);
+	}
+}
+

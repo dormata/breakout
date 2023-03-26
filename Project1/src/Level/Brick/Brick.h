@@ -14,6 +14,7 @@
  // 3rd Party Includes
  //***************************
 #include "SDL2/SDL.h"
+#include "SDL2_mixer/SDL_mixer.h"
 
  //***************************
  // App Includes
@@ -38,6 +39,10 @@ class Brick
 		void fillRenderBricksBuffer();
 		void setBrickExists(bool brickExists);
 		void setTextureIndex(uint32_t index);
+		void setHitSoundIndex(uint32_t index);
+		void setBreakSoundIndex(uint32_t index);
+		void setHitSoundHandle(Mix_Chunk* sound);
+		void setBreakSoundHandle(Mix_Chunk* sound);
 		void onHit();
 
 		SDL_Rect	getBrickProps() const;
@@ -47,6 +52,8 @@ class Brick
 		std::string	getTexturePath() const;
 		uint32_t	getTextureIndex() const;
 		char		getBrickType() const;
+		uint32_t	getHitSoundIndex() const;
+		uint32_t	getBreakSoundIndex() const;
 
 	private:
 		bool			m_doesBrickExist = false;
@@ -59,4 +66,5 @@ class Brick
 		void setBrickAtts(BrickAttributes brickAtts);
 		void setBrickRect(SDL_Rect brickRect);
 		void setHitsLeft(int hitsLeft);
+		void playSound(Mix_Chunk* sound);
 };

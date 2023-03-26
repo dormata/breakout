@@ -89,7 +89,7 @@ uint32_t TexturePool::addTextureToPool(SDL_Texture* texture)
 }
 
 /*
- * loadTextureFromFile(): get texture handle from member vector at index
+ * getTextureFromVector(): get texture handle from member vector at index
  *
  * @params:
  *		index - index of texture from member vector

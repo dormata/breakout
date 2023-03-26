@@ -47,20 +47,41 @@ void Brick::onHit()
 	{
 		if (m_hitsLeftToBreak <= 0)
 		{
+			// Brick broken
 			m_doesBrickExist = false;
 			// (zero for hit, predefined score for break)
 			m_scoreOnHit = m_brickAttributes.breakScore;
+			// Play break sound
+			playSound(m_brickAttributes.breakSound);
+		}
+		else
+		{
+			// Brick still exists, only hit
+			// Play hit sound
+			playSound(m_brickAttributes.hitSound);
 		}
 	}
 	else
 	{
+		// Impenetrable brick
 		m_hitsLeftToBreak = 0;
 		m_scoreOnHit = 0;
+		// Play hit sound
+		playSound(m_brickAttributes.hitSound);
 	}
 
-	// play sounds
-
 	// set opacity
+}
+
+/*
+ * playSound(): play sound
+ * 
+ * @params:
+ *		sound - sound to be played
+ */
+void Brick::playSound(Mix_Chunk* sound)
+{
+	CHECK_MIXER_NEGATIVE_ERROR_NOTHROW(Mix_PlayChannel(-1, sound, 0));
 }
 
 /*
@@ -154,14 +175,58 @@ void Brick::setRendererHandle(SDL_Renderer* renderHandle)
 }
 
 /*
+ * setHitSoundHandle(): set hit sound handle from Level
+ *
+ * @params:
+ *		sound - sound handle (pointer)
+ */
+void Brick::setHitSoundHandle(Mix_Chunk* sound)
+{
+	m_brickAttributes.hitSound = sound;
+}
+
+/*
+ * setHitSoundHandle(): set break sound handle from Level
+ *
+ * @params:
+ *		sound - sound handle (pointer)
+ */
+void Brick::setBreakSoundHandle(Mix_Chunk* sound)
+{
+	m_brickAttributes.breakSound = sound;
+}
+
+/*
  * setTextureIndex(): set index for texture vector
  *
  * @params:
- *		renderHandle - texture vector index
+ *		index - texture vector index
  */
 void Brick::setTextureIndex(uint32_t index)
 {
 	m_brickAttributes.textureVectorIndex = index;
+}
+
+/*
+ * setHitSoundIndex(): set index for hit sound vector
+ *
+ * @params:
+ *		index - sound vector index
+ */
+void Brick::setHitSoundIndex(uint32_t index)
+{
+	m_brickAttributes.hitSoundVectorIndex = index;
+}
+
+/*
+ * setBreakSoundIndex(): set index for break sound vector
+ *
+ * @params:
+ *		index - sound vector index
+ */
+void Brick::setBreakSoundIndex(uint32_t index)
+{
+	m_brickAttributes.breakSoundVectorIndex = index;
 }
 
 /*
@@ -222,6 +287,26 @@ std::string Brick::getTexturePath() const
 uint32_t Brick::getTextureIndex() const
 {
 	return m_brickAttributes.textureVectorIndex;
+}
+
+/*
+ * getHitSoundIndex(): get index of hit sound in sound vector
+ *
+ * @return: sound index
+ */
+uint32_t Brick::getHitSoundIndex() const
+{
+	return m_brickAttributes.hitSoundVectorIndex;
+}
+
+/*
+ * getBreakSoundIndex(): get index of break sound in sound vector
+ *
+ * @return: sound index
+ */
+uint32_t Brick::getBreakSoundIndex() const
+{
+	return m_brickAttributes.breakSoundVectorIndex;
 }
 
 /*

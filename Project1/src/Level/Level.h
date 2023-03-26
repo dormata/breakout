@@ -25,6 +25,7 @@
 #include "IDynamicObject/Paddle/Paddle.h"
 #include "IDynamicObject/Ball/Ball.h"
 #include "../TexturePool/TexturePool.h"
+#include "../SoundPool/SoundPool.h"
 
  //***************************
  // Definition
@@ -46,7 +47,10 @@ class Level
 		void setLivesChange(int lives);
 		void setScoreChange(int score);
 		void setBrickTextureIndices();
+		void setSoundIndicesAndHandle();
+
 		void initTexturePool();
+		void initSoundPool();
 
 		int			getLivesChange() const;
 		int			getScoreChange() const;
@@ -154,6 +158,10 @@ class Level
 		int		m_scoreChange = 0;
 
 		// Textures
-		std::shared_ptr<TexturePool> m_objectTexturePool;
+		std::unique_ptr<TexturePool> m_objectTexturePool;
+
+		// Sounds
+		std::unique_ptr<SoundPool> m_objectSoundPoolHit;
+		std::unique_ptr<SoundPool> m_objectSoundPoolBreak;
 };
 

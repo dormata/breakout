@@ -1,14 +1,14 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description: Data structures shared within Level folder (specific to level)
+ * Description: Sound Pool header
  */
 #pragma once
 
  //***************************
  // C++ Includes
  //***************************
-#include <string>
+#include <vector>
 
  //***************************
  // 3rd Party Includes
@@ -24,19 +24,18 @@
  // Definition
  //***************************
 
-struct BrickAttributes 
+class SoundPool
 {
-	std::string		texturePath;
-	int				hitPoints;
-	std::string		hitSoundPath;
-	std::string		breakSoundPath;
-	int				breakScore;
-	bool			isBreakable;
-	uint32_t		textureVectorIndex;
-	char			key;
-	uint32_t		hitSoundVectorIndex;
-	uint32_t		breakSoundVectorIndex;
-	SDL_Texture*	texture;
-	Mix_Chunk*		hitSound;
-	Mix_Chunk*		breakSound;
+	public:
+		SoundPool();
+		~SoundPool();
+
+		Mix_Chunk* loadSoundFromFile(std::string filename);
+		uint32_t addSoundToPool(Mix_Chunk* sound);
+
+		Mix_Chunk* getSoundFromVector(uint32_t index) const;
+
+	private:
+		// Intended for sound effects, not music
+		std::vector<Mix_Chunk*> m_soundPointerVector{};
 };

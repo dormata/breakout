@@ -43,10 +43,16 @@ void Application::initialize()
 	m_renderer = SDL_CreateRenderer(m_window, -1, 0);
 	CHECK_SDL_FALSE_ERROR(m_renderer);
 
+	// Font
 	CHECK_TTF_NEGATIVE_ERROR(TTF_Init());
 	std::string fontPathAndName = std::string(RESOURCE_FILES_PATH) + std::string(FONTS_FOLDER_NAME) + std::string(FONT1_FOLDER_AND_FILE_NAME);
 	m_font = TTF_OpenFont(fontPathAndName.c_str(), FONT_SIZE);
 	CHECK_TTF_FALSE_ERROR(m_font);
+
+	// Sound mixer
+	// TODO: Lazyfoo.net: The last argument is the sample size, which determines the size of the chunks we use when playing sound
+	// 2048 bytes (AKA 2 kilobyes) worked fine for me, but you may have to experiment with this value to minimize lag when playing sounds
+	CHECK_MIXER_NEGATIVE_ERROR(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048));
 
 	// Create File Reader
 	std::unique_ptr<FileReader> fileReader = std::make_unique<FileReader>();
@@ -76,6 +82,10 @@ void Application::initialize()
 		m_levelObjects.at(i)->setRendererHandle(m_renderer);
 		m_levelObjects.at(i)->initTexturePool();
 		m_levelObjects.at(i)->setBrickTextureIndices();
+
+		// Create sound pool for bricks
+		m_levelObjects.at(i)->initSoundPool();
+		m_levelObjects.at(i)->setSoundIndicesAndHandle();
 	}
 }
 
@@ -163,7 +173,9 @@ void Application::destroy()
 	{
 		// log error
 	}
-	
+
+	Mix_Quit();
+	IMG_Quit();
 	SDL_Quit();
 }
 
