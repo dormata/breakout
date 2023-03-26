@@ -72,7 +72,7 @@ std::shared_ptr<Level> Level::makeLevel(FileReaderOutputData configStruct)
 }
 
 /*
- * updateGameState():
+ * updateGameState(): calculates objects' positions after interactions
  */
 void Level::updateGameState()
 {
@@ -90,82 +90,112 @@ void Level::updateGameState()
 	// Ball vs paddle
 	if (hasIntersection(ballProps, paddleProps))
 	{
-		// Part of paddle hit -> different angle change
-		float paddlePart = (paddleProps.x + static_cast<float>(paddleProps.w/2)) - (ballProps.x + static_cast<float>(ballProps.w/2));
-		// Normalize - the closer to the middle, the smaller the coeff
-		// Keep the sign
-		float norm = paddlePart / (paddleProps.w / 2);
-		// Hit on the edge, norm > 1
-		if (norm > 1)	norm = 1;
-		if (norm < -1)	norm = -1;
-
-		float bounceAngle = norm * (5 * 3.14f / 12); // using a bit less than 6pi/12
-		ballVelocity.Y = static_cast<int>(std::round(-ballSpeed * std::cos(bounceAngle)));
-		ballVelocity.X = static_cast<int>(std::round(ballSpeed * (-std::sin(bounceAngle))));
+		updateBallDataOnPaddleHit(paddleProps, ballProps, ballSpeed, ballVelocity);
 	}
 		
 	// Ball vs brick
 	SDL_Rect brickProps{};
 	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
 	{
-		// Get hit points required
-		// Get hit points left
-		// set opacity or remove
-		//m_brickObjects.at(i)->get
-
 		if (m_brickObjects.at(i)->getBrickExists())
 		{
 			brickProps = m_brickObjects.at(i)->getBrickProps();
 			if (hasIntersection(ballProps, brickProps))
 			{
-				// Added speed tolerances
-				
-				// Left side hit
-				if ((ballProps.x + ballVelocity.X + ballProps.w) >= brickProps.x &&
-					(ballProps.x - ballVelocity.X + ballProps.w) <= brickProps.x)
-				{
-					ballVelocity.X = -ballVelocity.X;
-				}
-				// Right side hit
-				if ((ballProps.x + ballVelocity.X) >= (brickProps.x + brickProps.w) &&
-					(ballProps.x - ballVelocity.X) <= (brickProps.x + brickProps.w))
-				{
-					ballVelocity.X = -ballVelocity.X;
-				}
-
-				// Top side hit
-				if ((ballProps.y + ballVelocity.Y + ballProps.h) >= brickProps.y &&
-					(ballProps.y - ballVelocity.Y + ballProps.h) <= brickProps.y)
-				{
-					ballVelocity.Y = -ballVelocity.Y;
-				}
-				// Bottom side hit
-				if ((ballProps.y + ballVelocity.Y) <= (brickProps.y + brickProps.h) &&
-					(ballProps.y - ballVelocity.Y) >= (brickProps.y + brickProps.h))
-				{
-					ballVelocity.Y = -ballVelocity.Y;
-				}
+				// Update ball props
+				updateBallDataOnBrickHit(brickProps, ballProps, ballVelocity);
+				// Update brick props
+				m_brickObjects.at(i)->onHit();
+				// Update score
+				m_scoreChange += m_brickObjects.at(i)->getBrickScore();
 			}
-		}
-		
+		}	
 	}
-
-	// Set bricks
-
 	// Ball vs wall
 	if (ballProps.x < 0 || (ballProps.x + ballProps.w) > WINDOW_WIDTH) ballVelocity.X = -ballVelocity.X;
 
 	// Ball vs ceiling
 	if (ballProps.y <= 0) ballVelocity.Y = -ballVelocity.Y;
 
-	// Check for velocity component limits
-	/*if (ballVelocity.X > MAX_X_VAL) ballVelocity.X = MAX_X_VAL;*/
-
 	// Set velocity
 	m_objectBall->setVelocity(ballVelocity);
 
+	// Ball vs floor
+	if (ballProps.y >= WINDOW_HEIGHT)
+	{
+		m_livesNumChanged = -1;
+		// Reset position
+		m_objectPaddle->setInitialPosition(m_paddleInitialPos.x, m_paddleInitialPos.y);
+		m_objectBall->setInitialPosition(m_ballInitialPos.x, m_ballInitialPos.y);
+		m_objectBall->setVelocity(m_initialBallVel);
+	}
+
 	// Update ball position
 	m_objectBall->updatePosition();
+}
+
+/*
+ * updateBallDataOnPaddleHit(): change ball velocity x & y components based on where ball hit the current brick
+ *
+ * @params:
+ *		brickProps - brick properties
+ *		ballProps - ball properties
+ *		ballVelocity - ball velocity = components of speed
+ */
+void Level::updateBallDataOnBrickHit(const SDL_Rect& brickProps, const SDL_Rect& ballProps, BallVelocity& ballVelocity)
+{
+	// Added speed tolerances
+	// Left side hit
+	if ((ballProps.x + ballVelocity.X + ballProps.w) >= brickProps.x &&
+		(ballProps.x - ballVelocity.X + ballProps.w) <= brickProps.x)
+	{
+		ballVelocity.X = -ballVelocity.X;
+	}
+	// Right side hit
+	if ((ballProps.x + ballVelocity.X) >= (brickProps.x + brickProps.w) &&
+		(ballProps.x - ballVelocity.X) <= (brickProps.x + brickProps.w))
+	{
+		ballVelocity.X = -ballVelocity.X;
+	}
+
+	// Top side hit
+	if ((ballProps.y + ballVelocity.Y + ballProps.h) >= brickProps.y &&
+		(ballProps.y - ballVelocity.Y + ballProps.h) <= brickProps.y)
+	{
+		ballVelocity.Y = -ballVelocity.Y;
+	}
+	// Bottom side hit
+	if ((ballProps.y + ballVelocity.Y) <= (brickProps.y + brickProps.h) &&
+		(ballProps.y - ballVelocity.Y) >= (brickProps.y + brickProps.h))
+	{
+		ballVelocity.Y = -ballVelocity.Y;
+	}
+}
+
+/*
+ * updateBallDataOnPaddleHit(): change ball velocity x & y components based on where ball hit the paddle
+ * 
+ * @params:
+ *		paddleProps - paddle properties
+ *		ballProps - ball properties
+ *		ballSpeed - ball speed = dist moved per iteration
+ *		ballVelocity - ball velocity = components of speed
+ */
+void Level::updateBallDataOnPaddleHit(const SDL_Rect& paddleProps, const SDL_Rect& ballProps, 
+									  int ballSpeed, BallVelocity& ballVelocity)
+{
+	// Part of paddle hit -> different angle change
+	float paddlePart = (paddleProps.x + static_cast<float>(paddleProps.w / 2)) - (ballProps.x + static_cast<float>(ballProps.w / 2));
+	// Normalize - the closer to the middle, the smaller the coeff
+	// Keep the sign
+	float norm = paddlePart / (paddleProps.w / 2);
+	// Hit on the edge, norm > 1
+	if (norm > 1)	norm = 1;
+	if (norm < -1)	norm = -1;
+
+	float bounceAngle = norm * (5 * 3.14f / 12); // using a bit less than 6pi/12
+	ballVelocity.Y = static_cast<int>(std::round(-ballSpeed * std::cos(bounceAngle)));
+	ballVelocity.X = static_cast<int>(std::round(ballSpeed * (-std::sin(bounceAngle))));
 }
 
 /*
@@ -289,16 +319,16 @@ void Level::setLevelName(std::string name)
  */
 void Level::setPaddleData()
 {
-	int paddleWidthPixels = 50;
+	int paddleWidthPixels = 80;
 	int paddleHeightPixels = 10;
 	m_objectPaddle->setSize(paddleWidthPixels, paddleHeightPixels);
 
 	int paddleSpeed = 10;
 	m_objectPaddle->setSpeed(paddleSpeed);
 
-	int xInital = WINDOW_WIDTH / 2 - paddleWidthPixels/2;
-	int yInitial = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + paddleHeightPixels);
-	m_objectPaddle->setInitialPosition(xInital, yInitial);
+	m_paddleInitialPos.x = WINDOW_WIDTH / 2 - paddleWidthPixels/2;
+	m_paddleInitialPos.y = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + paddleHeightPixels);
+	m_objectPaddle->setInitialPosition(m_paddleInitialPos.x, m_paddleInitialPos.y);
 }
 
 /*
@@ -313,15 +343,14 @@ void Level::setBallData()
 	int ballSpeed = 4;
 	m_objectBall->setSpeed(ballSpeed);
 
-	// TODO: check where lowest row of bricks is, not window height/2
-	int xInital = WINDOW_WIDTH / 2 - ballWidthPixels / 2;
-	int yInitial = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + WINDOW_HEIGHT/2) - 100;
-	m_objectBall->setInitialPosition(xInital, yInitial);
+	// TODO: check where lowest row of bricks is, not window height/2 and random number
+	m_ballInitialPos.x = WINDOW_WIDTH / 2 - ballWidthPixels / 2;
+	m_ballInitialPos.y = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + WINDOW_HEIGHT/2) - 100;
+	m_objectBall->setInitialPosition(m_ballInitialPos.x, m_ballInitialPos.y);
 
-	BallVelocity initVel{};
-	initVel.X = 0;
-	initVel.Y = ballSpeed;
-	m_objectBall->setVelocity(initVel);
+	m_initialBallVel.X = 0;
+	m_initialBallVel.Y = ballSpeed;
+	m_objectBall->setVelocity(m_initialBallVel);
 }
 
 /*
@@ -516,29 +545,32 @@ bool Level::hasIntersection(SDL_Rect rect1, SDL_Rect rect2)
 	//						 r1
 
 	// l1 - top left first rect
-	int l1X = rect1.x;
-	int l1Y = rect1.y;
+	Point l1{};
+	l1.x = rect1.x;
+	l1.y = rect1.y;
 	// r1 - bottom right first rect
-	int r1X = rect1.x + rect1.w;
-	int r1Y = rect1.y + rect1.h;
-
+	Point r1{};
+	r1.x = rect1.x + rect1.w;
+	r1.y = rect1.y + rect1.h;
 	// l2 - top left second rect
-	int l2X = rect2.x;
-	int l2Y = rect2.y;
+	Point l2{};
+	l2.x = rect2.x;
+	l2.y = rect2.y;
 	// r2 - bottom right second rect
-	int r2X = rect2.x + rect2.w;
-	int r2Y = rect2.y + rect2.h;
+	Point r2{};
+	r2.x = rect2.x + rect2.w;
+	r2.y = rect2.y + rect2.h;
 
 	// TODO: if rectangle has area 0
 
 	// If one rectangle is on left side of other
-	if (l1X > r2X || l2X > r1X)
+	if (l1.x > r2.x || l2.x > r1.x)
 	{
 		return false;
 	}
 
 	// If one rectangle is above other
-	if (r1Y < l2Y || r2Y < l1Y)
+	if (r1.y < l2.y || r2.y < l1.y)
 	{
 		return false;
 	}
@@ -546,38 +578,55 @@ bool Level::hasIntersection(SDL_Rect rect1, SDL_Rect rect2)
 	return true;
 }
 
-///*
-// * hasIntersection(): check if rectangles have intersection (collision detection)
-// *					: specific to ball and paddle - collision from above
-// *
-// * @params:
-// *		rect1 - first rectangle
-// *		rect2 - second rectangle
-// * 
-// * @return: true if 2 rectangles have intersection
-// */
-//bool Level::hasIntersection(SDL_Rect rect1, SDL_Rect rect2)
-//{
-//	//			  w1
-//	//			x----x
-//	//			|	 | h1
-//	//			x----x					  w1
-//	//	x--------------------x			x----x x--------------------x
-//	//	|					 | h2		|	 | |					| h2
-//	//	x--------------------x			x----x x--------------------x
-//	//			  w2									 w2
-//
-//	if ((rect1.x + rect1.w) >= rect2.x &&	// from the left side
-//		(rect1.x + rect1.w) <= (rect2.x + rect2.w) &&
-//		(rect1.y + rect1.h) >= rect2.y ||
-//		 rect1.x >= (rect2.x + rect2.w) &&
-//		 rect1.x <= rect2.y &&
-//		(rect1.y + rect1.h) >= rect2.y)
-//	{
-//		return true;
-//	}
-//	else
-//	{
-//		return false;
-//	}
-//}
+/*
+ * getLivesChange(): when life is lost (e.g. ball missed) or gained (e.g. powerups),
+ *				share that change with Application which holds game end conditions
+ *
+ * @return: positive or negative number of lives number changed
+ */
+int Level::getLivesChange()
+{
+	return m_livesNumChanged;
+}
+
+/*
+ * getScoreChange(): when score is changed, share that change with Application which holds total score between levels
+ *
+ * @return: positive or negative score change
+ */
+int Level::getScoreChange()
+{
+	return m_scoreChange;
+}
+
+/*
+ * getLevelName(): get level name
+ *
+ * @return: level name string
+ */
+std::string Level::getLevelName()
+{
+	return m_levelName;
+}
+
+/*
+ * setLivesChange(): set number of lives change
+ *
+ * @params:
+ *		lives - lives change
+ */
+void Level::setLivesChange(int lives)
+{
+	m_livesNumChanged = lives;
+}
+
+/*
+ * setScoreChange(): set score change
+ *
+ * @params:
+ *		score - score change
+ */
+void Level::setScoreChange(int score)
+{
+	m_scoreChange = score;
+}

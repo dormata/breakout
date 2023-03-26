@@ -160,3 +160,67 @@ inline Logging g_errorLogs;
 		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 1); \
 	} \
 };
+
+/*
+ * CHECK_TTF_NEGATIVE_ERROR(): checks error for TTF functions returning zero or negative numbers, throws exception
+ *
+ * @params:
+ *		x - result value that should be zero on success, less than zero on error
+ */
+#define CHECK_TTF_NEGATIVE_ERROR(x) { \
+	if ( x<0 ) { \
+		const char* description; \
+		description = TTF_GetError(); \
+		std::string errorString = "System error: "; \
+		errorString.append(description); \
+		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 1); \
+	} \
+};
+
+/*
+* CHECK_SDL_NEGATIVE_ERROR_NOTHROW(): checks error for TTF functions returning zero or negative numbers
+*
+* @params:
+*		x - result value that should be zero on success, less than zero on error
+*/
+#define CHECK_TTF_NEGATIVE_ERROR_NOTHROW(x) { \
+	if ( x<0 ) { \
+		const char* description; \
+		description = TTF_GetError(); \
+		std::string errorString = "System error: "; \
+		errorString.append(description); \
+		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 0); \
+	} \
+};
+
+/*
+ * CHECK_TTF_FALSE_ERROR(): checks error for TTF functions returning nullptr on error, throws exception
+ *
+ * @params:
+ *		x - result value that should be true on success, false on error
+ */
+#define CHECK_TTF_FALSE_ERROR(x) { \
+	if ( !(x) ) { \
+		const char* description; \
+		description = TTF_GetError(); \
+		std::string errorString = "System error: "; \
+		errorString.append(description); \
+		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 1); \
+	} \
+};
+
+ /*
+  * CHECK_TTF_FALSE_ERROR_NOTHROW(): checks error for TTF functions returning nullptr on error
+  *
+  * @params:
+  *		x - result value that should be true on success, false on error
+  */
+#define CHECK_TTF_FALSE_ERROR_NOTHROW(x) { \
+	if ( !(x) ) { \
+		const char* description; \
+		description = TTF_GetError(); \
+		std::string errorString = "System error: "; \
+		errorString.append(description); \
+		g_errorLogs.reportLog(errorString, std::string(__FILE__), std::to_string(__LINE__), 0); \
+	} \
+};

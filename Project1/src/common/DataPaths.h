@@ -1,7 +1,7 @@
 /*
  * Created on: Mar 2023
  * Author: Dora Matic
- * Description: Contains paths to folders used by project which are not in project
+ * Description: Contains paths to folders used by project which are not already in project
  */
 #pragma once
 

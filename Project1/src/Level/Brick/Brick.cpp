@@ -38,6 +38,24 @@ Brick::~Brick()
 }
 
 /*
+ * onHit(): update brick state when hit
+ */
+void Brick::onHit()
+{
+	m_hitsLeftToBreak -= 1;
+	if (m_hitsLeftToBreak <= 0)
+	{
+		m_doesBrickExist = false;
+		// (zero for hit, predefined score for break)
+		m_scoreOnHit = m_brickAttributes.breakScore;
+	}
+
+	// play sounds
+
+	// set opacity
+}
+
+/*
  * makeBrick(): factory method for creating multiple objects of class Brick
  * 
  * @params:
@@ -53,6 +71,7 @@ std::shared_ptr<Brick> Brick::makeBrick(BrickAttributes brickAtt, SDL_Rect brick
 	objectBrick->setBrickExists(true);
 	objectBrick->setBrickAtts(brickAtt);
 	objectBrick->setBrickRect(brickProperties);
+	objectBrick->setHitsLeft(brickAtt.hitPoints);
 
 	return objectBrick;
 }
@@ -69,6 +88,17 @@ void Brick::fillRenderBricksBuffer()
 		// Fill buffer with one brick
 		CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderFillRect(m_renderHandle, &m_brickRect));
 	}
+}
+
+/*
+ * setHitsLeft(): set how many hits are left until brick breaks
+ *
+ * @params:
+ *		hitsLeft - hits left to break brick
+ */
+void Brick::setHitsLeft(int hitsLeft)
+{
+	m_hitsLeftToBreak = hitsLeft;
 }
 
 /*
@@ -133,6 +163,16 @@ SDL_Rect Brick::getBrickProps()
 bool Brick::getBrickExists()
 {
 	return m_doesBrickExist;
+}
+
+/*
+ * getBrickBreakScore(): get how many points current hit is worth 
+ *
+ * @return: score on break
+ */
+int Brick::getBrickScore()
+{
+	return m_scoreOnHit;
 }
 
 ///*

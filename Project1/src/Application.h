@@ -54,7 +54,6 @@ class Application
 		int				m_fps = 0;					// number of frames per second
 		SDL_Window*		m_window = nullptr;			// window handle
 		SDL_Renderer*	m_renderer = nullptr;		// renderer handle
-		SDL_Surface*	m_screenSurface = nullptr;	// surface handle
 		TTF_Font*		m_font = nullptr;			// font handle
 		uint32_t		m_numLevelCurrent = 0;		// currently active level, iterator for level object vector 
 
@@ -64,4 +63,24 @@ class Application
 		// Desired fps
 		static constexpr int APP_FPS = 60;
 
+		// Resources paths
+		// Fonts
+		static constexpr char FONTS_FOLDER_NAME[] = "fonts/";
+		static constexpr char FONT1_FOLDER_AND_FILE_NAME[] = "nasa21/Nasa21.ttf";
+
+		// Game info
+		static constexpr int START_NUM_LIVES = 5;
+		static constexpr int FONT_SIZE = 30;
+
+		struct HUDInfo
+		{
+			std::string levelName{};
+			int			currentScore = 0;;
+			int			livesLeft = 0;;
+			int			fps = 0;;
+		};
+		HUDInfo m_hudInfo{};
+
+		// Write text
+		void writeText(std::string text, Point location);
 };

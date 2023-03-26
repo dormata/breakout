@@ -20,6 +20,7 @@
 #include "common/Logger.h"
 #include "common/DataStructures/CommonDataStructures.h"
 #include "FileReader/FileReader.h"
+#include "common/DataPaths.h"
 
 //***************************
 // Implementation
@@ -42,8 +43,10 @@ void Application::initialize()
 	m_renderer = SDL_CreateRenderer(m_window, -1, 0);
 	CHECK_SDL_FALSE_ERROR(m_renderer);
 
-	TTF_Init();
-	m_font = TTF_OpenFont("font.ttf", 10);
+	CHECK_TTF_NEGATIVE_ERROR(TTF_Init());
+	std::string fontPathAndName = std::string(RESOURCE_FILES_PATH) + std::string(FONTS_FOLDER_NAME) + std::string(FONT1_FOLDER_AND_FILE_NAME);
+	m_font = TTF_OpenFont(fontPathAndName.c_str(), FONT_SIZE);
+	CHECK_TTF_FALSE_ERROR(m_font);
 
 	// Create File Reader
 	std::unique_ptr<FileReader> fileReader = std::make_unique<FileReader>();
@@ -65,6 +68,9 @@ int Application::execute()
 {
 	initialize();
 
+	// Set number of lives
+	m_hudInfo.livesLeft = START_NUM_LIVES;
+
 	SDL_Event event;
 	// Main loop
 	while (m_run)
@@ -73,7 +79,6 @@ int Application::execute()
 		// level->isLevelFinished // ovisno o broju ziovta ili broju brickova
 		m_numLevelCurrent = 0; // jel bi ovo sve mozda islo pod game loop
 
-		
 
 		// Are there pending events
 		while (SDL_PollEvent(&event) > 0)
@@ -168,6 +173,16 @@ void Application::update()
 		// debug
 		std::cout << "m_fps = " << m_fps << std::endl;
 	}
+
+	// Update HUD info
+	m_hudInfo.currentScore += m_levelObjects.at(m_numLevelCurrent)->getScoreChange();
+	m_hudInfo.livesLeft += m_levelObjects.at(m_numLevelCurrent)->getLivesChange();
+	m_hudInfo.levelName = m_levelObjects.at(m_numLevelCurrent)->getLevelName();
+	m_hudInfo.fps = m_fps;
+
+	// Reset delta vars
+	m_levelObjects.at(m_numLevelCurrent)->setScoreChange(0);
+	m_levelObjects.at(m_numLevelCurrent)->setLivesChange(0);
 }
 
 /*
@@ -194,8 +209,29 @@ void Application::render()
 	rect.h = WINDOW_HEIGHT;
 	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderFillRect(m_renderer, &rect));
 	
+	// Level objects
 	m_levelObjects.at(m_numLevelCurrent)->setRendererHandle(m_renderer);
 	m_levelObjects.at(m_numLevelCurrent)->fillRenderLevelBuffer();
+
+	// HUD
+	Point textLocation{}; 
+	textLocation.x = 10; 
+	textLocation.y = 10;
+	//writeText("Score: " + m_hudInfo.currentScore, textLocation);
+	writeText("Score: " + std::to_string(m_hudInfo.currentScore), textLocation);
+
+	Point livesLocation{};
+	livesLocation.x = WINDOW_WIDTH / 2 + FONT_SIZE / 2;
+	livesLocation.y = FONT_SIZE * 2;
+	writeText(std::to_string(m_hudInfo.livesLeft), livesLocation);
+
+	textLocation.x = 200;
+	textLocation.y = 200;
+	writeText("BLABLA", textLocation);
+
+	textLocation.x = 40;
+	textLocation.y = 40;
+	writeText("opet isprobavam", textLocation);
 
 	// Present final drawing
 	SDL_RenderPresent(m_renderer);
@@ -222,4 +258,38 @@ Application& Application::getInstance()
 { 
 	static Application instance;
 	return instance;
+}
+
+/*
+ * writeText(): fills render buffer with text
+ * 
+ * @params:
+ *		text - text to be written
+ *		location - starting x & y of text
+ */
+void Application::writeText(std::string text, Point location)
+{
+	// TODO: HORRIBLE! BUILD SDL_FontCache
+
+	SDL_Color color{};
+	color.r = 0; color.g = 0; color.b = 1;
+	const char* t = text.c_str();
+	SDL_Surface* surface;
+	SDL_Texture* texture;
+	surface = TTF_RenderText_Solid(m_font, t, color);
+	CHECK_TTF_FALSE_ERROR_NOTHROW(surface);
+	texture = SDL_CreateTextureFromSurface(m_renderer, surface);
+	CHECK_TTF_FALSE_ERROR_NOTHROW(texture);
+
+	SDL_Rect txtRect{};
+	txtRect.w = surface->w;
+	txtRect.h = surface->h;
+	txtRect.x = location.x;
+	txtRect.y = location.y;
+	//txtRect.x = location.x - txtRect.w;
+	//txtRect.y = location.y - txtRect.h;
+
+	SDL_FreeSurface(surface);
+	CHECK_TTF_NEGATIVE_ERROR_NOTHROW(SDL_RenderCopy(m_renderer, texture, NULL, &txtRect));
+	SDL_DestroyTexture(texture);
 }

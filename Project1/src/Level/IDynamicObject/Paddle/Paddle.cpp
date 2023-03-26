@@ -53,12 +53,20 @@ void Paddle::movePaddle(const uint8_t* keystates)
 		{
 			m_properties.x -= m_speed;
 		}
+		else
+		{
+			m_properties.x = 0;
+		}
 	}
 	if (keystates[SDL_SCANCODE_RIGHT])
 	{
 		if ((m_properties.x + m_properties.w + m_speed) < WINDOW_WIDTH)
 		{
 			m_properties.x += m_speed;
+		}
+		else
+		{
+			m_properties.x = WINDOW_WIDTH - m_properties.w;
 		}
 	}
 }

@@ -36,3 +36,9 @@ struct BallVelocity
 	int X = 0;
 	int Y = 0;
 };
+
+struct Point
+{
+	int x = 0;
+	int y = 0;
+};

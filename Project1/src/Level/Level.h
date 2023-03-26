@@ -42,6 +42,12 @@ class Level
 		void setKeystates(const uint8_t* keystates);
 		void fillRenderLevelBuffer();
 		void updateGameState();
+		void setLivesChange(int lives);
+		void setScoreChange(int score);
+
+		int			getLivesChange();
+		int			getScoreChange();
+		std::string getLevelName();
 
 	private:
 		void parseXML(std::string filename);
@@ -117,16 +123,22 @@ class Level
 		// Paddle
 		std::unique_ptr<Paddle> m_objectPaddle;
 		void setPaddleData();
+		Point m_paddleInitialPos{};
 
 		// Ball
 		std::unique_ptr<Ball> m_objectBall;
 		void setBallData();
+		Point m_ballInitialPos{};
+		BallVelocity m_initialBallVel{};
 
 		// Intersection checks
 		bool hasIntersection(SDL_Rect rect1, SDL_Rect rect2);
-		// Max value that X component of ball velocity can change for, upon colliding with paddle
-		int MAX_X_CHANGE = 10;
-		// Max absolute value that X component of ball velocity
-		int MAX_X_VAL = 10;
+		void updateBallDataOnPaddleHit(const SDL_Rect& paddleProps, const SDL_Rect& ballProps,
+										int ballSpeed, BallVelocity& ballVelocity);
+		void updateBallDataOnBrickHit(const SDL_Rect& brickProps, const SDL_Rect& ballProps, BallVelocity& ballVelocity);
+
+		// HUD info
+		int		m_livesNumChanged = 0;
+		int		m_scoreChange = 0;
 };
 

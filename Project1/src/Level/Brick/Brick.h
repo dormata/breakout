@@ -37,17 +37,21 @@ class Brick
 		void setRendererHandle(SDL_Renderer* renderHandle);
 		void fillRenderBricksBuffer();
 		void setBrickExists(bool brickExists);
+		void onHit();
 
 		SDL_Rect	getBrickProps();
 		bool		getBrickExists();
+		int			getBrickScore();
 
 	private:
 		bool			m_doesBrickExist = false;
 		SDL_Rect		m_brickRect{};
 		BrickAttributes m_brickAttributes{};
 		SDL_Renderer*	m_renderHandle = nullptr;
+		int				m_hitsLeftToBreak = 0;
+		int				m_scoreOnHit = 0; // gets value when brick is broken
 
-		//void setBrickExists(bool brickExists);
 		void setBrickAtts(BrickAttributes brickAtts);
 		void setBrickRect(SDL_Rect brickRect);
+		void setHitsLeft(int hitsLeft);
 };
