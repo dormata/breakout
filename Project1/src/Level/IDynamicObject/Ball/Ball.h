@@ -32,7 +32,7 @@ class Ball : public IDynamicObject
 		void updatePosition();
 		void setVelocity(BallVelocity ballVelocity);
 
-		BallVelocity getVelocity();
+		BallVelocity getVelocity() const;
 
 	private:
 		BallVelocity m_ballVelocity{};

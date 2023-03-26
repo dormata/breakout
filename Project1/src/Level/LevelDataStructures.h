@@ -29,4 +29,7 @@ struct BrickAttributes
 	std::string hitSoundPath;
 	std::string breakSoundPath;
 	int			breakScore;
+	bool		isBreakable;
+	uint32_t	textureVectorIndex;
+	char		key;
 };

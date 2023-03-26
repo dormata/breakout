@@ -74,7 +74,7 @@ void Ball::setVelocity(BallVelocity ballVelocity)
  *
  * @return: ball velocity
  */
-BallVelocity Ball::getVelocity()
+BallVelocity Ball::getVelocity() const
 {
 	return m_ballVelocity;
 }

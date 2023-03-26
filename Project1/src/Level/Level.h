@@ -24,6 +24,7 @@
 #include "Brick/Brick.h"
 #include "IDynamicObject/Paddle/Paddle.h"
 #include "IDynamicObject/Ball/Ball.h"
+#include "../TexturePool/TexturePool.h"
 
  //***************************
  // Definition
@@ -44,10 +45,15 @@ class Level
 		void updateGameState();
 		void setLivesChange(int lives);
 		void setScoreChange(int score);
+		void setBrickTextureIndices();
+		void initTexturePool();
 
-		int			getLivesChange();
-		int			getScoreChange();
-		std::string getLevelName();
+		int			getLivesChange() const;
+		int			getScoreChange() const;
+		std::string getLevelName() const;
+		std::string	getBackgroundPath() const;
+
+		bool areAllBricksBroken();
 
 	private:
 		void parseXML(std::string filename);
@@ -93,6 +99,10 @@ class Level
 		const char* BRICK_BREAK_SOUND = "BreakSound";
 		const char* BRICK_BREAK_SCORE = "BreakScore";
 
+		// Reserved character for infinite number of hits
+		const char* INFINITE_1 = "Infinite";
+		const char* INFINITE_2 = "infinite";
+
 		// Map key
 		char m_id = 0;
 
@@ -107,9 +117,11 @@ class Level
 
 		// Brick layout
 		std::string m_layoutString;
+		int			m_totalNumberOfBricks = 0;
+		bool		m_allBricksBroken = false;
 
 		// One brick height in pixels
-		static constexpr int BRICK_HEIGHT_PIXELS = 10;
+		static constexpr int BRICK_HEIGHT_PIXELS = 20;
 		// Do not render on first number of pixels up on screen
 		static constexpr int UPPER_SCREEN_OFFSET_PIXELS = 50;
 		// Do not render on first number of pixels down on screen
@@ -140,5 +152,8 @@ class Level
 		// HUD info
 		int		m_livesNumChanged = 0;
 		int		m_scoreChange = 0;
+
+		// Textures
+		std::shared_ptr<TexturePool> m_objectTexturePool;
 };
 

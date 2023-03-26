@@ -41,8 +41,8 @@ class IDynamicObject
 		virtual void fillRenderBuffer() = 0;
 
 		// Get properties
-		SDL_Rect getObjectProps();
-		int		 getSpeed();
+		SDL_Rect getObjectProps() const;
+		int		 getSpeed() const;
 
 	protected:
 		SDL_Rect		m_properties{};

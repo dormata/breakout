@@ -24,13 +24,16 @@
     <ClCompile Include="src\common\Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Level\Level.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="third_party\include\tinyxml2\tinyxml2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\FileReader\FileReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Level\TexturePool\TexturePool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TexturePool\TexturePool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Level\Brick\Brick.cpp">
@@ -45,12 +48,12 @@
     <ClCompile Include="src\Level\IDynamicObject\IDynamicObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Level\Level.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Level\Level.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\common\Logger.h">
@@ -338,19 +341,28 @@
     <ClInclude Include="src\common\DataStructures\CommonDataStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Level\TexturePool\TexturePool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TexturePool\TexturePool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\Level\Brick\Brick.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Level\LevelDataStructures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Level\IDynamicObject\IDynamicObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Level\IDynamicObject\Ball\Ball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Level\IDynamicObject\Paddle\Paddle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level\IDynamicObject\IDynamicObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level\Level.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Level\LevelDataStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

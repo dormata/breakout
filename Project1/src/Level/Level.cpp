@@ -95,10 +95,15 @@ void Level::updateGameState()
 		
 	// Ball vs brick
 	SDL_Rect brickProps{};
+	m_allBricksBroken = true; // assume true until at least one existing is found
 	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
 	{
 		if (m_brickObjects.at(i)->getBrickExists())
 		{
+			if (m_brickObjects.at(i)->getBrickBreakable())
+			{
+				m_allBricksBroken = false;
+			}
 			brickProps = m_brickObjects.at(i)->getBrickProps();
 			if (hasIntersection(ballProps, brickProps))
 			{
@@ -203,18 +208,21 @@ void Level::updateBallDataOnPaddleHit(const SDL_Rect& paddleProps, const SDL_Rec
  */
 void Level::fillRenderLevelBuffer()
 {
-	// Background
-	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderHandle, 0, 255, 0, 255));
-	SDL_Rect rect{};
-	rect.x = 0; rect.y = 0;
-	rect.w = 600;
-	rect.h = 100;
-	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderFillRect(m_renderHandle, &rect));
-
 	// Bricks
+	SDL_Texture* brickTexture;
 	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
 	{
-		m_brickObjects.at(i)->fillRenderBricksBuffer();
+		// Solid color inside Brick object
+		// m_brickObjects.at(i)->fillRenderBricksBuffer();
+
+		if (m_brickObjects.at(i)->getBrickExists())
+		{
+			// Texture from texture pool
+			uint32_t index = m_brickObjects.at(i)->getTextureIndex();
+			brickTexture = m_objectTexturePool->getTextureFromVector(index);
+			SDL_Rect brickRect = m_brickObjects.at(i)->getBrickProps();
+			CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderCopy(m_renderHandle, brickTexture, NULL, &brickRect));
+		}
 	}
 
 	// Paddle
@@ -230,7 +238,7 @@ void Level::fillRenderLevelBuffer()
 void Level::processAndCreateBrickLayout()
 {
 	// Assume layout is correctly defined w.r.t. required number of rows and columns
-	int totalNumberBricks = m_mainAttributesStruct.rowCount * m_mainAttributesStruct.colCount;
+	m_totalNumberOfBricks = m_mainAttributesStruct.rowCount * m_mainAttributesStruct.colCount;
 
 	// _______________________________ <- window width
 	//
@@ -252,7 +260,7 @@ void Level::processAndCreateBrickLayout()
 
 	BrickAttributes brickAttributes{};
 	int lastIndex = 0; int j = -1;
-	for (int i = 0; i < totalNumberBricks; i++)
+	for (int i = 0; i < m_totalNumberOfBricks; i++)
 	{
 		// Column iterator
 		brickProps.x = (i % m_mainAttributesStruct.colCount) * brickProps.w
@@ -268,7 +276,7 @@ void Level::processAndCreateBrickLayout()
 					 + (j % m_mainAttributesStruct.rowCount) * m_mainAttributesStruct.rowSpacing
 					 + UPPER_SCREEN_OFFSET_PIXELS;
 
-		// Find first brick ID in layout
+		// Find first brick ID in layout (first non white space)
 		while (isEmptyStringElement(m_layoutString[lastIndex])) { lastIndex++; }
 		// Check brick type
 		bool successPair = false;
@@ -415,20 +423,17 @@ void Level::parseXML(std::string filename)
 			LOG_AND_THROW("Brick ID not defined - not possible to parse layout!");
 		}
 		m_id = idChar[0];
+		std::string idString(1, m_id);
 
 		// Texture path
 		const char* textPath;
 		if (pRepeatingElement->QueryStringAttribute(BRICK_TEXTURE, &textPath) != tinyxml2::XML_SUCCESS)
 		{
 			// use default texture
+			// textPath =
+			LOG("Unrecognized texture path in file: " + filename + " under: " + idString);
 		}
 		brickAttStruct.texturePath = textPath;
-
-		// Hit points
-		if (pRepeatingElement->QueryIntAttribute(BRICK_HIT_PTS, &brickAttStruct.hitPoints) != tinyxml2::XML_SUCCESS)
-		{
-			// use default num of hit points
-		}
 
 		// Brick hit sound path
 		const char* hitSndPath;
@@ -451,6 +456,37 @@ void Level::parseXML(std::string filename)
 		{
 			// use default score
 		}
+
+		// Hit points
+		if (pRepeatingElement->QueryIntAttribute(BRICK_HIT_PTS, &brickAttStruct.hitPoints) != tinyxml2::XML_SUCCESS)
+		{
+			// Check if infinite
+			const char* maybeInf;
+			if (pRepeatingElement->QueryStringAttribute(BRICK_HIT_PTS, &maybeInf) != tinyxml2::XML_SUCCESS)
+			{
+				// Undefined, use default num of hit points
+				LOG("Unrecognized brick hit points in file: " + filename + " under: " + idString);
+			}
+			else
+			{
+				if (std::string(maybeInf) == INFINITE_1 || std::string(maybeInf) == INFINITE_2)
+				{
+					brickAttStruct.hitPoints = 0;
+					brickAttStruct.isBreakable = false;
+					brickAttStruct.breakScore = 0;
+				}
+			}
+			// use default num of hit points
+			//brickAttStruct.hitPoints = hitPts;
+			//brickAttStruct.isBreakable = true
+		}
+		else
+		{
+			// Success, integer num of hit points
+			brickAttStruct.isBreakable = true;
+		}
+
+		brickAttStruct.key = m_id; // save for texture locating
 
 		m_brickTypesMap.insert({ m_id, brickAttStruct });
 	}
@@ -584,7 +620,7 @@ bool Level::hasIntersection(SDL_Rect rect1, SDL_Rect rect2)
  *
  * @return: positive or negative number of lives number changed
  */
-int Level::getLivesChange()
+int Level::getLivesChange() const
 {
 	return m_livesNumChanged;
 }
@@ -594,7 +630,7 @@ int Level::getLivesChange()
  *
  * @return: positive or negative score change
  */
-int Level::getScoreChange()
+int Level::getScoreChange() const
 {
 	return m_scoreChange;
 }
@@ -604,9 +640,19 @@ int Level::getScoreChange()
  *
  * @return: level name string
  */
-std::string Level::getLevelName()
+std::string Level::getLevelName() const
 {
 	return m_levelName;
+}
+
+/*
+ * getBackgroundPath(): get background texture file path
+ *
+ * @return: texture file path
+ */
+std::string Level::getBackgroundPath() const
+{
+	return m_mainAttributesStruct.backgroundPath;
 }
 
 /*
@@ -629,4 +675,49 @@ void Level::setLivesChange(int lives)
 void Level::setScoreChange(int score)
 {
 	m_scoreChange = score;
+}
+
+/*
+ * areAllBricksBroken(): returns bool
+ *
+ * @return: true if all bricks are broken
+ */
+bool Level::areAllBricksBroken()
+{
+	return m_allBricksBroken;
+}
+
+/*
+ * initTexturePool(): creates TexturePool object and adds textures to vector using brick objects info
+ *					: uses renderer handle -> should be called after setting renderer handle
+ */
+void Level::initTexturePool()
+{
+	// Create bricks texture pool object
+	m_objectTexturePool = std::make_shared<TexturePool>();
+	SDL_Texture* addTexture;
+	
+	for (auto const& [key, val] : m_brickTypesMap)
+	{
+		// Texture path saved per brick type in bricktypesmap
+		addTexture = m_objectTexturePool->loadTextureFromFile(m_renderHandle, m_brickTypesMap.at(key).texturePath);
+		// Add that texture to texture pool object's member vector and check at which index texture was inserted
+		uint32_t index = m_objectTexturePool->addTextureToPool(addTexture);
+		// Set that index in every brick object
+		m_brickTypesMap.at(key).textureVectorIndex = index;
+	}
+}
+
+/*
+ * setBrickTextureIndices(): set index of texture vector (brick texture) for every brick created
+ */
+void Level::setBrickTextureIndices()
+{
+	for (uint32_t i = 0; i < m_brickObjects.size(); i++)
+	{
+		char key = m_brickObjects.at(i)->getBrickType();
+		// Brick types map is mapped with brick type as key
+		// Use that key to save index for accessing texture vector
+		m_brickObjects.at(i)->setTextureIndex(m_brickTypesMap.at(key).textureVectorIndex);
+	}
 }

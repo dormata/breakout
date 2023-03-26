@@ -57,6 +57,26 @@ void Application::initialize()
 	{
 		m_levelObjects.push_back(Level::makeLevel(configFileNames.at(i)));
 	}
+
+	// Textures
+	m_backgroundRect.x = 0;
+	m_backgroundRect.y = 0;
+	m_backgroundRect.w = WINDOW_WIDTH;
+	m_backgroundRect.h = WINDOW_HEIGHT;
+
+	// Create Level (backgrounds) texture pool
+	m_levelTexPool = std::make_unique<TexturePool>();
+	SDL_Texture* addTexture;
+	for (uint32_t i = 0; i < m_levelObjects.size(); i++)
+	{
+		addTexture = m_levelTexPool->loadTextureFromFile(m_renderer, m_levelObjects.at(i)->getBackgroundPath());
+		m_levelTexPool->addTextureToPool(addTexture);
+
+		// Create texture pool for bricks
+		m_levelObjects.at(i)->setRendererHandle(m_renderer);
+		m_levelObjects.at(i)->initTexturePool();
+		m_levelObjects.at(i)->setBrickTextureIndices();
+	}
 }
 
 /*
@@ -71,15 +91,13 @@ int Application::execute()
 	// Set number of lives
 	m_hudInfo.livesLeft = START_NUM_LIVES;
 
+	// Start with level
+	m_numLevelCurrent = 0;
+
 	SDL_Event event;
 	// Main loop
 	while (m_run)
 	{
-		// Active level
-		// level->isLevelFinished // ovisno o broju ziovta ili broju brickova
-		m_numLevelCurrent = 0; // jel bi ovo sve mozda islo pod game loop
-
-
 		// Are there pending events
 		while (SDL_PollEvent(&event) > 0)
 		{
@@ -90,6 +108,21 @@ int Application::execute()
 		update();
 		gameLoop();
 		render();
+
+		// Check if level is finished
+		if (m_levelObjects.at(m_numLevelCurrent)->areAllBricksBroken() == true)
+		{
+			// Go to next level
+			m_numLevelCurrent += 1;
+			// If it exists, otherwise game over
+			int numLvls = static_cast<int>(m_levelObjects.size());
+			if (static_cast<int>(m_numLevelCurrent) >= (numLvls - 1)) m_run = false;
+		}
+		// Check if player has any lives left
+		if (m_hudInfo.livesLeft <= 0)
+		{
+			m_run = false;
+		}
 
 		m_frameCount++;
 		delay();
@@ -202,12 +235,8 @@ void Application::render()
 	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderClear(m_renderer));
 
 	// Background
-	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255));
-	SDL_Rect rect{};
-	rect.x = 0; rect.y = 0;
-	rect.w = WINDOW_WIDTH;
-	rect.h = WINDOW_HEIGHT;
-	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderFillRect(m_renderer, &rect));
+	SDL_Texture* backgroundTexture = m_levelTexPool->getTextureFromVector(m_numLevelCurrent);
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderCopy(m_renderer, backgroundTexture, NULL, &m_backgroundRect));
 	
 	// Level objects
 	m_levelObjects.at(m_numLevelCurrent)->setRendererHandle(m_renderer);
@@ -217,21 +246,16 @@ void Application::render()
 	Point textLocation{}; 
 	textLocation.x = 10; 
 	textLocation.y = 10;
-	//writeText("Score: " + m_hudInfo.currentScore, textLocation);
 	writeText("Score: " + std::to_string(m_hudInfo.currentScore), textLocation);
 
 	Point livesLocation{};
-	livesLocation.x = WINDOW_WIDTH / 2 + FONT_SIZE / 2;
-	livesLocation.y = FONT_SIZE * 2;
-	writeText(std::to_string(m_hudInfo.livesLeft), livesLocation);
+	livesLocation.x = WINDOW_WIDTH / 2 - FONT_SIZE / 2;
+	livesLocation.y = 10;
+	writeText("Lives: " + std::to_string(m_hudInfo.livesLeft), livesLocation);
 
 	textLocation.x = 200;
 	textLocation.y = 200;
 	writeText("BLABLA", textLocation);
-
-	textLocation.x = 40;
-	textLocation.y = 40;
-	writeText("opet isprobavam", textLocation);
 
 	// Present final drawing
 	SDL_RenderPresent(m_renderer);

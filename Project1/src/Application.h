@@ -20,6 +20,7 @@
 // App Includes
 //***************************
 #include "Level/Level.h"
+#include "TexturePool/TexturePool.h"
 
 //***************************
 // Definition
@@ -70,7 +71,7 @@ class Application
 
 		// Game info
 		static constexpr int START_NUM_LIVES = 5;
-		static constexpr int FONT_SIZE = 30;
+		static constexpr int FONT_SIZE = 20;
 
 		struct HUDInfo
 		{
@@ -83,4 +84,10 @@ class Application
 
 		// Write text
 		void writeText(std::string text, Point location);
+
+		// Background rect
+		SDL_Rect m_backgroundRect{};
+
+		// Textures
+		std::unique_ptr<TexturePool> m_levelTexPool;
 };

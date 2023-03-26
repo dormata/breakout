@@ -37,11 +37,16 @@ class Brick
 		void setRendererHandle(SDL_Renderer* renderHandle);
 		void fillRenderBricksBuffer();
 		void setBrickExists(bool brickExists);
+		void setTextureIndex(uint32_t index);
 		void onHit();
 
-		SDL_Rect	getBrickProps();
-		bool		getBrickExists();
-		int			getBrickScore();
+		SDL_Rect	getBrickProps() const;
+		bool		getBrickExists() const;
+		bool		getBrickBreakable() const;
+		int			getBrickScore() const;
+		std::string	getTexturePath() const;
+		uint32_t	getTextureIndex() const;
+		char		getBrickType() const;
 
 	private:
 		bool			m_doesBrickExist = false;

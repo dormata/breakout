@@ -43,11 +43,19 @@ Brick::~Brick()
 void Brick::onHit()
 {
 	m_hitsLeftToBreak -= 1;
-	if (m_hitsLeftToBreak <= 0)
+	if (m_brickAttributes.isBreakable == true)
 	{
-		m_doesBrickExist = false;
-		// (zero for hit, predefined score for break)
-		m_scoreOnHit = m_brickAttributes.breakScore;
+		if (m_hitsLeftToBreak <= 0)
+		{
+			m_doesBrickExist = false;
+			// (zero for hit, predefined score for break)
+			m_scoreOnHit = m_brickAttributes.breakScore;
+		}
+	}
+	else
+	{
+		m_hitsLeftToBreak = 0;
+		m_scoreOnHit = 0;
 	}
 
 	// play sounds
@@ -146,11 +154,22 @@ void Brick::setRendererHandle(SDL_Renderer* renderHandle)
 }
 
 /*
+ * setTextureIndex(): set index for texture vector
+ *
+ * @params:
+ *		renderHandle - texture vector index
+ */
+void Brick::setTextureIndex(uint32_t index)
+{
+	m_brickAttributes.textureVectorIndex = index;
+}
+
+/*
  * getBrickProps(): get brick location and size
  *
  * @return: brick properties
  */
-SDL_Rect Brick::getBrickProps()
+SDL_Rect Brick::getBrickProps() const
 {
 	return m_brickRect;
 }
@@ -160,7 +179,7 @@ SDL_Rect Brick::getBrickProps()
  *
  * @return: true if brick exists
  */
-bool Brick::getBrickExists()
+bool Brick::getBrickExists() const
 {
 	return m_doesBrickExist;
 }
@@ -170,18 +189,47 @@ bool Brick::getBrickExists()
  *
  * @return: score on break
  */
-int Brick::getBrickScore()
+int Brick::getBrickScore() const
 {
 	return m_scoreOnHit;
 }
 
-///*
-// * setBrickExists(): set if brick exists
-// *
-// * @params:
-// *		brickExists - true if brick exists
-// */
-//void Brick::setBrickExists(bool brickExists)
-//{
-//	m_doesBrickExist = brickExists;
-//}
+/*
+ * getBrickBreakable(): get brick breakable status
+ *
+ * @return: true if brick is breakable
+ */
+bool Brick::getBrickBreakable() const
+{
+	return m_brickAttributes.isBreakable;
+}
+
+/*
+ * getTexturePath(): get texture path
+ *
+ * @return: texture path
+ */
+std::string Brick::getTexturePath() const
+{
+	return m_brickAttributes.texturePath;
+}
+
+/*
+ * getTextureIndex(): get index of texture in texture vector
+ *
+ * @return: texture index
+ */
+uint32_t Brick::getTextureIndex() const
+{
+	return m_brickAttributes.textureVectorIndex;
+}
+
+/*
+ * getBrickType(): get type of brick (map key)
+ *
+ * @return: brick type
+ */
+char Brick::getBrickType() const
+{
+	return m_brickAttributes.key;
+}

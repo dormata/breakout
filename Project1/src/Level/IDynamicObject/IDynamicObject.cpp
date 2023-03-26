@@ -75,7 +75,7 @@ void IDynamicObject::setRendererHandle(SDL_Renderer* renderHandle)
  *
  * @return: object properties
  */
-SDL_Rect IDynamicObject::getObjectProps()
+SDL_Rect IDynamicObject::getObjectProps() const
 {
 	return m_properties;
 }
@@ -85,7 +85,7 @@ SDL_Rect IDynamicObject::getObjectProps()
  *
  * @return: object speed
  */
-int IDynamicObject::getSpeed()
+int IDynamicObject::getSpeed() const
 {
 	return m_speed;
 }
