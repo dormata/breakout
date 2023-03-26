@@ -265,6 +265,10 @@
     <ClInclude Include="third_party\include\SDL2_ttf\SDL_ttf.h" />
     <ClInclude Include="third_party\include\tinyxml2\tinyxml2.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="resources\levelConfig\2.xml" />
+    <Xml Include="resources\levelConfig\3.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

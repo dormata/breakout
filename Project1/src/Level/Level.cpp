@@ -113,10 +113,6 @@ void Level::updateGameState()
 				m_brickObjects.at(i)->onHit();
 				// Update score
 				m_scoreChange += m_brickObjects.at(i)->getBrickScore();
-				// Play sound
-				/*uint32_t index = m_brickObjects.at(i)->get();
-				brickTexture = m_objectTexturePool->getTextureFromVector(index);
-				playSound();*/
 			}
 		}	
 	}
@@ -139,6 +135,8 @@ void Level::updateGameState()
 		m_objectBall->setVelocity(m_initialBallVel);
 	}
 
+	// TODO: check for infinite bounces - ball stuck, reset
+
 	// Update ball position
 	m_objectBall->updatePosition();
 }
@@ -154,26 +152,26 @@ void Level::updateGameState()
 void Level::updateBallDataOnBrickHit(const SDL_Rect& brickProps, const SDL_Rect& ballProps, BallVelocity& ballVelocity)
 {
 	// Added speed tolerances
-	// Left side hit
+	// Left brick side hit
 	if ((ballProps.x + ballVelocity.X + ballProps.w) >= brickProps.x &&
 		(ballProps.x - ballVelocity.X + ballProps.w) <= brickProps.x)
 	{
 		ballVelocity.X = -ballVelocity.X;
 	}
-	// Right side hit
-	if ((ballProps.x + ballVelocity.X) >= (brickProps.x + brickProps.w) &&
-		(ballProps.x - ballVelocity.X) <= (brickProps.x + brickProps.w))
+	// Right brick side hit
+	if ((ballProps.x + ballVelocity.X) <= (brickProps.x + brickProps.w) &&
+		(ballProps.x - ballVelocity.X) >= (brickProps.x + brickProps.w))
 	{
 		ballVelocity.X = -ballVelocity.X;
 	}
 
-	// Top side hit
+	// Top brick side hit
 	if ((ballProps.y + ballVelocity.Y + ballProps.h) >= brickProps.y &&
 		(ballProps.y - ballVelocity.Y + ballProps.h) <= brickProps.y)
 	{
 		ballVelocity.Y = -ballVelocity.Y;
 	}
-	// Bottom side hit
+	// Bottom brick side hit
 	if ((ballProps.y + ballVelocity.Y) <= (brickProps.y + brickProps.h) &&
 		(ballProps.y - ballVelocity.Y) >= (brickProps.y + brickProps.h))
 	{
@@ -331,8 +329,8 @@ void Level::setLevelName(std::string name)
  */
 void Level::setPaddleData()
 {
-	int paddleWidthPixels = 80;
-	int paddleHeightPixels = 10;
+	int paddleWidthPixels = 100;
+	int paddleHeightPixels = 12;
 	m_objectPaddle->setSize(paddleWidthPixels, paddleHeightPixels);
 
 	int paddleSpeed = 10;
@@ -348,16 +346,16 @@ void Level::setPaddleData()
  */
 void Level::setBallData()
 {
-	int ballWidthPixels = 8;
-	int ballHeightPixels = 8;
+	int ballWidthPixels = 12;
+	int ballHeightPixels = 12;
 	m_objectBall->setSize(ballWidthPixels, ballHeightPixels);
 
 	int ballSpeed = 4;
 	m_objectBall->setSpeed(ballSpeed);
 
-	// TODO: check where lowest row of bricks is, not window height/2 and random number
+	// TODO: check where lowest row of bricks is, not window height/2 
 	m_ballInitialPos.x = WINDOW_WIDTH / 2 - ballWidthPixels / 2;
-	m_ballInitialPos.y = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + WINDOW_HEIGHT/2) - 200;
+	m_ballInitialPos.y = WINDOW_HEIGHT / 2;
 	m_objectBall->setInitialPosition(m_ballInitialPos.x, m_ballInitialPos.y);
 
 	m_initialBallVel.X = 0;
@@ -768,7 +766,7 @@ void Level::setSoundIndicesAndHandle()
 		m_brickObjects.at(i)->setBreakSoundIndex(m_brickTypesMap.at(key).breakSoundVectorIndex);
 		// Use this index to also set actual sound handle
 		Mix_Chunk* soundHit		= m_objectSoundPoolHit->getSoundFromVector(m_brickTypesMap.at(key).hitSoundVectorIndex);
-		Mix_Chunk* soundBreak	= m_objectSoundPoolHit->getSoundFromVector(m_brickTypesMap.at(key).breakSoundVectorIndex);
+		Mix_Chunk* soundBreak	= m_objectSoundPoolBreak->getSoundFromVector(m_brickTypesMap.at(key).breakSoundVectorIndex);
 		// Set handles to use in Brick
 		m_brickObjects.at(i)->setHitSoundHandle(soundHit);
 		m_brickObjects.at(i)->setBreakSoundHandle(soundBreak);

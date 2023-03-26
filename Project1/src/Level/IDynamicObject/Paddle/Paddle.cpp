@@ -77,7 +77,7 @@ void Paddle::movePaddle(const uint8_t* keystates)
 void Paddle::fillRenderBuffer()
 {
 	// Set texture/color
-	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderHandle, 255, 0, 0, 255));
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderHandle, 255, 255, 255, 255));
 	// Fill buffer with one brick
 	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderFillRect(m_renderHandle, &m_properties));
 }

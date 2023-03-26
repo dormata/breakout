@@ -75,7 +75,7 @@ void Application::initialize()
 
 	// Textures
 	m_backgroundRect.x = 0;
-	m_backgroundRect.y = 45;
+	m_backgroundRect.y = 0;
 	m_backgroundRect.w = WINDOW_WIDTH;
 	m_backgroundRect.h = WINDOW_HEIGHT;
 
@@ -138,7 +138,7 @@ int Application::execute()
 			{
 				// If next level exists, increment index
 				int numLvls = static_cast<int>(m_levelObjects.size());
-				if (static_cast<int>(m_numLevelCurrent) >= numLvls)
+				if (static_cast<int>(m_numLevelCurrent) >= (numLvls-1))
 				{
 					// Game finished
 					m_exitGame = true;
@@ -276,14 +276,15 @@ void Application::render()
 
 	Point livesLocation{};
 	livesLocation.x = WINDOW_WIDTH / 2 - FONT_SIZE / 2;
-	livesLocation.y = 2;
+	livesLocation.y = 1;
 	writeText(std::to_string(m_hudInfo.livesLeft), livesLocation, m_fontLives);
 
 	textLocation.x = WINDOW_WIDTH - 110;
 	textLocation.y = 2;
 	writeText("LEVEL: " + m_hudInfo.levelName, textLocation, m_font);
 
-	textLocation.x = WINDOW_WIDTH - 35;
+	//textLocation.x = WINDOW_WIDTH - 35; // right
+	textLocation.x = 2; // left
 	textLocation.y = WINDOW_HEIGHT - SMALL_FONT_SIZE - 2;
 	writeText("FPS: " + std::to_string(m_hudInfo.fps), textLocation, m_fontSmall);
 
@@ -296,7 +297,7 @@ void Application::render()
 
 		if (m_isWin)
 		{
-			writeText("YAAAAAY!", loc, m_font);
+			writeText("COWS SAVED!", loc, m_font);
 		}
 		else
 		{
@@ -345,7 +346,7 @@ void Application::writeText(std::string text, Point location, TTF_Font* font)
 	// TODO: HORRIBLE! BUILD SDL_FontCache
 
 	SDL_Color color{};
-	color.r = 0; color.g = 0; color.b = 0;
+	color.r = 255; color.g = 255; color.b = 255;
 	const char* t = text.c_str();
 	SDL_Surface* surface;
 	SDL_Texture* texture;
