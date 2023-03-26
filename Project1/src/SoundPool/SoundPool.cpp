@@ -87,7 +87,7 @@ Mix_Chunk* SoundPool::getSoundFromVector(uint32_t index) const
 {
 	if (index >= m_soundPointerVector.size())
 	{
-		LOG("Texture index out of bounds");
+		LOG("Sound index out of bounds");
 		return nullptr;
 	}
 	return m_soundPointerVector.at(index);

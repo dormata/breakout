@@ -73,14 +73,6 @@ void FileReader::readFilenamesInDir()
 	{
 		LOG_AND_THROW("No level config files found in " + fullPathAndName + ", ");
 	}
-
-	// debug
-	for (uint32_t i = 0; i < m_configFilesStruct.size(); i++)
-	{
-		std::cout << m_configFilesStruct.at(i).configFilePathAndName << std::endl;
-		std::cout << m_configFilesStruct.at(i).levelName << std::endl;
-		std::cout << "\n" << std::endl;
-	}
 }
 
 /*

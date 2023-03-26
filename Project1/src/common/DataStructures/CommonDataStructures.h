@@ -23,7 +23,7 @@
 //***************************
 
 static constexpr int WINDOW_WIDTH = 600;
-static constexpr int WINDOW_HEIGHT = 500;
+static constexpr int WINDOW_HEIGHT = 700;
 
 struct FileReaderOutputData
 {

@@ -125,11 +125,11 @@ class Level
 		bool		m_allBricksBroken = false;
 
 		// One brick height in pixels
-		static constexpr int BRICK_HEIGHT_PIXELS = 20;
+		static constexpr int BRICK_HEIGHT_PIXELS = 30;
 		// Do not render on first number of pixels up on screen
 		static constexpr int UPPER_SCREEN_OFFSET_PIXELS = 50;
 		// Do not render on first number of pixels down on screen
-		static constexpr int LOWER_SCREEN_OFFSET_PIXELS = 10;
+		static constexpr int LOWER_SCREEN_OFFSET_PIXELS = 18;
 		// Do not render on first/last number of pixels left/right on screen
 		static constexpr int LEFT_RIGHT_SCREEN_OFFSET_PIXELS = 0; // has to be an even number to look nice because of rounding
 

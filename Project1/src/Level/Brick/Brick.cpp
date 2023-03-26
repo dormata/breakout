@@ -70,7 +70,8 @@ void Brick::onHit()
 		playSound(m_brickAttributes.hitSound);
 	}
 
-	// set opacity
+	// TODO:
+	// set opacity, or cracks, or count to show brick has been hit/damaged but not broken
 }
 
 /*

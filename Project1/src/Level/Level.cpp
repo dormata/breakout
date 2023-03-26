@@ -357,7 +357,7 @@ void Level::setBallData()
 
 	// TODO: check where lowest row of bricks is, not window height/2 and random number
 	m_ballInitialPos.x = WINDOW_WIDTH / 2 - ballWidthPixels / 2;
-	m_ballInitialPos.y = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + WINDOW_HEIGHT/2) - 100;
+	m_ballInitialPos.y = WINDOW_HEIGHT - (LOWER_SCREEN_OFFSET_PIXELS + WINDOW_HEIGHT/2) - 200;
 	m_objectBall->setInitialPosition(m_ballInitialPos.x, m_ballInitialPos.y);
 
 	m_initialBallVel.X = 0;

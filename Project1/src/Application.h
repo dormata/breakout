@@ -44,12 +44,13 @@ class Application
 
 		void onEvent(SDL_Event* event);
 		void update();
-		void gameLoop();
 		void render();
 		void delay();
 
 		bool			m_run = true;				// main loop condition
+		bool			m_exitGame = false;			// go to end screen
 		bool			m_fullscreen = false;		// toggle full screen of game window
+		bool			m_isWin = true;				// did game finish on a win
 		int				m_frameCount = 0;			// current number of frames rendered within a second
 		int				m_timeMS = 0;				// current time (from init) in milliseconds
 		int				m_lastTimeMS = 0;			// time of last second 
@@ -57,6 +58,8 @@ class Application
 		SDL_Window*		m_window = nullptr;			// window handle
 		SDL_Renderer*	m_renderer = nullptr;		// renderer handle
 		TTF_Font*		m_font = nullptr;			// font handle
+		TTF_Font*		m_fontLives = nullptr;		// font handle
+		TTF_Font*		m_fontSmall = nullptr;		// font handle
 		uint32_t		m_numLevelCurrent = 0;		// currently active level, iterator for level object vector 
 
 		// Vector with objects from class level
@@ -68,11 +71,15 @@ class Application
 		// Resources paths
 		// Fonts
 		static constexpr char FONTS_FOLDER_NAME[] = "fonts/";
-		static constexpr char FONT1_FOLDER_AND_FILE_NAME[] = "nasa21/Nasa21.ttf";
+		static constexpr char FONT1_FOLDER_AND_FILE_NAME[] = "handwriting/handwriting.ttf";
+		static constexpr char FONT2_FOLDER_AND_FILE_NAME[] = "hearts/hearts.ttf";
+		static constexpr char FONT3_FOLDER_AND_FILE_NAME[] = "sleepy/Asleepy.ttf";
 
 		// Game info
-		static constexpr int START_NUM_LIVES = 5;
-		static constexpr int FONT_SIZE = 20;
+		static constexpr int START_NUM_LIVES = 6;
+		static constexpr int FONT_SIZE = 30;
+		static constexpr int SMALL_FONT_SIZE = 15;
+		static constexpr int LIVES_FONT_SIZE = 50;
 
 		struct HUDInfo
 		{
@@ -84,7 +91,7 @@ class Application
 		HUDInfo m_hudInfo{};
 
 		// Write text
-		void writeText(std::string text, Point location);
+		void writeText(std::string text, Point location, TTF_Font* font);
 
 		// Background rect
 		SDL_Rect m_backgroundRect{};

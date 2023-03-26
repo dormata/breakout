@@ -34,7 +34,7 @@ void Application::initialize()
 	// Init and set SDL
 	CHECK_SDL_NEGATIVE_ERROR(SDL_Init(SDL_INIT_EVERYTHING));
 
-	m_window = SDL_CreateWindow("title", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+	m_window = SDL_CreateWindow("Save your cow friends!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
 	CHECK_SDL_FALSE_ERROR(m_window);
 
 	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_ShowCursor(1)); // Show cursor
@@ -45,9 +45,18 @@ void Application::initialize()
 
 	// Font
 	CHECK_TTF_NEGATIVE_ERROR(TTF_Init());
+	// Big text
 	std::string fontPathAndName = std::string(RESOURCE_FILES_PATH) + std::string(FONTS_FOLDER_NAME) + std::string(FONT1_FOLDER_AND_FILE_NAME);
 	m_font = TTF_OpenFont(fontPathAndName.c_str(), FONT_SIZE);
 	CHECK_TTF_FALSE_ERROR(m_font);
+	// Lives count specific
+	fontPathAndName = std::string(RESOURCE_FILES_PATH) + std::string(FONTS_FOLDER_NAME) + std::string(FONT2_FOLDER_AND_FILE_NAME);
+	m_fontLives = TTF_OpenFont(fontPathAndName.c_str(), LIVES_FONT_SIZE);
+	CHECK_TTF_FALSE_ERROR(m_fontLives);
+	// Very small text
+	fontPathAndName = std::string(RESOURCE_FILES_PATH) + std::string(FONTS_FOLDER_NAME) + std::string(FONT3_FOLDER_AND_FILE_NAME);
+	m_fontSmall = TTF_OpenFont(fontPathAndName.c_str(), SMALL_FONT_SIZE);
+	CHECK_TTF_FALSE_ERROR(m_fontSmall);
 
 	// Sound mixer
 	// TODO: Lazyfoo.net: The last argument is the sample size, which determines the size of the chunks we use when playing sound
@@ -66,7 +75,7 @@ void Application::initialize()
 
 	// Textures
 	m_backgroundRect.x = 0;
-	m_backgroundRect.y = 0;
+	m_backgroundRect.y = 45;
 	m_backgroundRect.w = WINDOW_WIDTH;
 	m_backgroundRect.h = WINDOW_HEIGHT;
 
@@ -104,6 +113,10 @@ int Application::execute()
 	// Start with level
 	m_numLevelCurrent = 0;
 
+	// End screen condition
+	m_exitGame = false;
+	m_isWin = true;
+
 	SDL_Event event;
 	// Main loop
 	while (m_run)
@@ -116,27 +129,36 @@ int Application::execute()
 		}
 
 		update();
-		gameLoop();
 		render();
 
-		// Check if level is finished
-		if (m_levelObjects.at(m_numLevelCurrent)->areAllBricksBroken() == true)
+		if (!m_exitGame)
 		{
-			// Go to next level
-			m_numLevelCurrent += 1;
-			// If it exists, otherwise game over
-			int numLvls = static_cast<int>(m_levelObjects.size());
-			if (static_cast<int>(m_numLevelCurrent) >= (numLvls - 1)) m_run = false;
-		}
-		// Check if player has any lives left
-		if (m_hudInfo.livesLeft <= 0)
-		{
-			m_run = false;
+			// Check if level is finished
+			if (m_levelObjects.at(m_numLevelCurrent)->areAllBricksBroken() == true)
+			{
+				// If next level exists, increment index
+				int numLvls = static_cast<int>(m_levelObjects.size());
+				if (static_cast<int>(m_numLevelCurrent) >= numLvls)
+				{
+					// Game finished
+					m_exitGame = true;
+				}
+				else
+				{
+					// Go to next level
+					m_numLevelCurrent += 1;
+				}
+			}
+			// Check if player has any lives left
+			if (m_hudInfo.livesLeft <= 0)
+			{
+				m_isWin = false;
+				m_exitGame = true;
+			}
 		}
 
 		m_frameCount++;
-		delay();
-		
+		delay();	
 	}
 
 	destroy();
@@ -205,8 +227,21 @@ void Application::update()
 	if (m_fullscreen)	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetWindowFullscreen(m_window, SDL_WINDOW_FULLSCREEN));
 	if (!m_fullscreen)	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetWindowFullscreen(m_window, 0));
 
-	// Update game state - object position, bricks
-	m_levelObjects.at(m_numLevelCurrent)->updateGameState();
+	if (!m_exitGame)
+	{
+		// Update game state - object position, bricks
+		m_levelObjects.at(m_numLevelCurrent)->updateGameState();
+
+		// Update HUD info
+		m_hudInfo.currentScore += m_levelObjects.at(m_numLevelCurrent)->getScoreChange();
+		m_hudInfo.livesLeft += m_levelObjects.at(m_numLevelCurrent)->getLivesChange();
+		m_hudInfo.levelName = m_levelObjects.at(m_numLevelCurrent)->getLevelName();
+		m_hudInfo.fps = m_fps;
+
+		// Reset delta vars
+		m_levelObjects.at(m_numLevelCurrent)->setScoreChange(0);
+		m_levelObjects.at(m_numLevelCurrent)->setLivesChange(0);
+	}
 
 	m_timeMS = SDL_GetTicks();
 	if (m_timeMS >= (m_lastTimeMS + 1000)) // 1000 ms - check if one second has passed
@@ -214,28 +249,7 @@ void Application::update()
 		m_lastTimeMS = m_timeMS;
 		m_fps = m_frameCount;
 		m_frameCount = 0;
-
-		// debug
-		std::cout << "m_fps = " << m_fps << std::endl;
 	}
-
-	// Update HUD info
-	m_hudInfo.currentScore += m_levelObjects.at(m_numLevelCurrent)->getScoreChange();
-	m_hudInfo.livesLeft += m_levelObjects.at(m_numLevelCurrent)->getLivesChange();
-	m_hudInfo.levelName = m_levelObjects.at(m_numLevelCurrent)->getLevelName();
-	m_hudInfo.fps = m_fps;
-
-	// Reset delta vars
-	m_levelObjects.at(m_numLevelCurrent)->setScoreChange(0);
-	m_levelObjects.at(m_numLevelCurrent)->setLivesChange(0);
-}
-
-/*
- * gameLoop():
- */
-void Application::gameLoop()
-{
-
 }
 
 /*
@@ -243,7 +257,7 @@ void Application::gameLoop()
  */
 void Application::render()
 {
-	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255));
+	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255));
 	CHECK_SDL_NEGATIVE_ERROR_NOTHROW(SDL_RenderClear(m_renderer));
 
 	// Background
@@ -257,17 +271,39 @@ void Application::render()
 	// HUD
 	Point textLocation{}; 
 	textLocation.x = 10; 
-	textLocation.y = 10;
-	writeText("Score: " + std::to_string(m_hudInfo.currentScore), textLocation);
+	textLocation.y = 2;
+	writeText("SCORE: " + std::to_string(m_hudInfo.currentScore), textLocation, m_font);
 
 	Point livesLocation{};
 	livesLocation.x = WINDOW_WIDTH / 2 - FONT_SIZE / 2;
-	livesLocation.y = 10;
-	writeText("Lives: " + std::to_string(m_hudInfo.livesLeft), livesLocation);
+	livesLocation.y = 2;
+	writeText(std::to_string(m_hudInfo.livesLeft), livesLocation, m_fontLives);
 
-	textLocation.x = 200;
-	textLocation.y = 200;
-	writeText("BLABLA", textLocation);
+	textLocation.x = WINDOW_WIDTH - 110;
+	textLocation.y = 2;
+	writeText("LEVEL: " + m_hudInfo.levelName, textLocation, m_font);
+
+	textLocation.x = WINDOW_WIDTH - 35;
+	textLocation.y = WINDOW_HEIGHT - SMALL_FONT_SIZE - 2;
+	writeText("FPS: " + std::to_string(m_hudInfo.fps), textLocation, m_fontSmall);
+
+	// If game has ended, display end screen until user exits
+	if (m_exitGame)
+	{
+		Point loc{};
+		loc.x = WINDOW_WIDTH / 2 - FONT_SIZE / 2 - 50;
+		loc.y = WINDOW_HEIGHT /2 - FONT_SIZE / 2 - 50;
+
+		if (m_isWin)
+		{
+			writeText("YAAAAAY!", loc, m_font);
+		}
+		else
+		{
+			writeText("GAME OVER", loc, m_font);
+		}
+	}
+
 
 	// Present final drawing
 	SDL_RenderPresent(m_renderer);
@@ -302,17 +338,18 @@ Application& Application::getInstance()
  * @params:
  *		text - text to be written
  *		location - starting x & y of text
+ *		font - font to be used
  */
-void Application::writeText(std::string text, Point location)
+void Application::writeText(std::string text, Point location, TTF_Font* font)
 {
 	// TODO: HORRIBLE! BUILD SDL_FontCache
 
 	SDL_Color color{};
-	color.r = 0; color.g = 0; color.b = 1;
+	color.r = 0; color.g = 0; color.b = 0;
 	const char* t = text.c_str();
 	SDL_Surface* surface;
 	SDL_Texture* texture;
-	surface = TTF_RenderText_Solid(m_font, t, color);
+	surface = TTF_RenderText_Solid(font, t, color);
 	CHECK_TTF_FALSE_ERROR_NOTHROW(surface);
 	texture = SDL_CreateTextureFromSurface(m_renderer, surface);
 	CHECK_TTF_FALSE_ERROR_NOTHROW(texture);
