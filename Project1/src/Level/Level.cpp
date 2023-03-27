@@ -431,9 +431,9 @@ void Level::parseXML(std::string filename)
 		const char* textPath;
 		if (pRepeatingElement->QueryStringAttribute(BRICK_TEXTURE, &textPath) != tinyxml2::XML_SUCCESS)
 		{
-			// use default texture
+			// TODO: use default texture
 			// textPath =
-			LOG("Unrecognized texture path in file: " + filename + " under: " + idString);
+			LOG_AND_THROW("Unrecognized texture path in file: " + filename + " under: " + idString);
 		}
 		brickAttStruct.texturePath = textPath;
 
@@ -441,7 +441,8 @@ void Level::parseXML(std::string filename)
 		const char* hitSndPath;
 		if (pRepeatingElement->QueryStringAttribute(BRICK_HIT_SOUND, &hitSndPath) != tinyxml2::XML_SUCCESS)
 		{
-			// use default sound
+			// TODO: use default sound
+			LOG_AND_THROW("Unrecognized hit sound path in file: " + filename + " under: " + idString);
 		}
 		brickAttStruct.hitSoundPath = hitSndPath;
 
@@ -449,14 +450,16 @@ void Level::parseXML(std::string filename)
 		const char* brkSndPath;
 		if (pRepeatingElement->QueryStringAttribute(BRICK_BREAK_SOUND, &brkSndPath) != tinyxml2::XML_SUCCESS)
 		{
-			// use default sound
+			// TODO: use default sound
+			//LOG_AND_THROW("Unrecognized break sound path in file: " + filename + " under: " + idString);
 		}
 		brickAttStruct.breakSoundPath = brkSndPath;
 
 		// Brick break score
 		if (pRepeatingElement->QueryIntAttribute(BRICK_BREAK_SCORE, &brickAttStruct.breakScore) != tinyxml2::XML_SUCCESS)
 		{
-			// use default score
+			// TODO: use default score
+			//LOG_AND_THROW("Unrecognized hit pts in file: " + filename + " under: " + idString);
 		}
 
 		// Hit points
@@ -466,8 +469,8 @@ void Level::parseXML(std::string filename)
 			const char* maybeInf;
 			if (pRepeatingElement->QueryStringAttribute(BRICK_HIT_PTS, &maybeInf) != tinyxml2::XML_SUCCESS)
 			{
-				// Undefined, use default num of hit points
-				LOG("Unrecognized brick hit points in file: " + filename + " under: " + idString);
+				// Undefined, TODO: use default num of hit points
+				LOG_AND_THROW("Unrecognized brick hit points in file: " + filename + " under: " + idString);
 			}
 			else
 			{
@@ -478,7 +481,7 @@ void Level::parseXML(std::string filename)
 					brickAttStruct.breakScore = 0;
 				}
 			}
-			// use default num of hit points
+			// TODO: use default num of hit points
 			//brickAttStruct.hitPoints = hitPts;
 			//brickAttStruct.isBreakable = true
 		}

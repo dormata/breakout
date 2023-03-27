@@ -30,9 +30,6 @@
     <ClCompile Include="src\FileReader\FileReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Level\TexturePool\TexturePool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\TexturePool\TexturePool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -49,6 +46,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Level\Level.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SoundPool\SoundPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -341,9 +341,6 @@
     <ClInclude Include="src\common\DataStructures\CommonDataStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Level\TexturePool\TexturePool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\TexturePool\TexturePool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -365,5 +362,15 @@
     <ClInclude Include="src\Level\LevelDataStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\SoundPool\SoundPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\include\SDL2_image\SDL_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="resources\levelConfig\2.xml" />
+    <Xml Include="resources\levelConfig\3.xml" />
   </ItemGroup>
 </Project>
