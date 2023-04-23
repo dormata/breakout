@@ -27,7 +27,7 @@ class IDynamicObject
 {
 	public:
 		IDynamicObject() = default;
-		~IDynamicObject() = default;
+		virtual ~IDynamicObject();
 
 		// Every dynamic object must have these set
 		void setInitialPosition(int x, int y);

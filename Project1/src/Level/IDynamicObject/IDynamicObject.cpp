@@ -23,6 +23,14 @@
 //***************************
 
 /*
+ * ~IDynamicObject(): release and destroy
+ */
+IDynamicObject::~IDynamicObject()
+{
+
+}
+
+/*
  * setSpeed(): set object speed - number of pixels changed in one step
  *
  * @params:
